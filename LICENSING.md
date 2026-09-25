@@ -4,6 +4,13 @@ This repository mixes my original work with third-party material. **The MIT lice
 [`LICENSE`](LICENSE) covers only my original work.** Everything else keeps its own license, or
 is not licensed by me at all.
 
+> **Scope of the MIT license.** [`LICENSE`](LICENSE) covers only the original work of the
+> copyright holder (lpnovi) in this repository. It does **not** cover:
+> - the Nobara-Enhanced Plasma Style, which stays GPL-2.0-or-later (§2)
+> - other third-party code and assets, which keep their own licenses (§3)
+> - the Nobara logo, the Windows logo, or other third-party artwork and trademarks, which
+>   remain the property of their respective owners (§4)
+
 ## 1. My original work — MIT ([`LICENSE`](LICENSE))
 
 - all scripts: `scripts/`, `refind/install-refind-theme.sh`, `refind/src/*.sh`,
