@@ -1,0 +1,35 @@
+# Ghostty configuration — single source of truth (consolidated 2026-09-25).
+# Backups of the previous config / config.ghostty: ~/.config/ghostty-backups/
+
+# ── Font ─────────────────────────────
+# Family left at Ghostty's default (JetBrains Mono) to keep the current look.
+font-size = 10
+
+# ── Theme / colors ───────────────────
+theme = nobara-enhanced
+window-theme = ghostty
+
+# ── Translucency ─────────────────────
+background-opacity = 0.90
+# KWin ignores per-app strength; uses System Settings > Desktop Effects > Blur
+background-blur = true
+background-opacity-cells = false
+
+# ── Padding ──────────────────────────
+window-padding-x = 5
+window-padding-y = 5
+window-padding-balance = true
+
+# ── Cursor ───────────────────────────
+cursor-style = bar
+cursor-style-blink = false
+adjust-cursor-thickness = 2
+
+# ── Splits ───────────────────────────
+unfocused-split-opacity = 0.85
+unfocused-split-fill = #121218
+split-divider-color = #3a3552
+
+# ── Behavior ─────────────────────────
+right-click-action = paste
+mouse-hide-while-typing = true

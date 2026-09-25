@@ -1,0 +1,25 @@
+[Desktop Entry]
+Comment=Nobara with refined rounded panel, popup and snap-preview corners (user-local derivative)
+Name=Nobara Enhanced
+X-KDE-PluginInfo-Author=GloriousEggroll (original), local customization
+X-KDE-PluginInfo-Category=Plasma Theme
+X-KDE-PluginInfo-Email=
+X-KDE-PluginInfo-EnabledByDefault=true
+X-KDE-PluginInfo-License=GPL version 3
+X-KDE-PluginInfo-Name=Nobara-Enhanced
+X-KDE-PluginInfo-Version=0.0.17.1
+X-KDE-PluginInfo-Website=
+X-Plasma-API=6.0
+
+[ContrastEffect]
+enabled=true
+contrast=1.0
+intensity=1.0
+saturation=1.0
+
+[Wallpaper]
+defaultFileSuffix=.png
+defaultWallpaperTheme=Nobara
+
+[AdaptiveTransparency]
+enabled=true

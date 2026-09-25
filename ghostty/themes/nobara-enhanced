@@ -1,0 +1,25 @@
+# Nobara Enhanced — dark palette with subtle purple/blue accents,
+# derived from the Nobara KDE color scheme (selection #6C54AA, focus #495363).
+background = #17161d
+foreground = #dcdce4
+selection-background = #6c54aa
+selection-foreground = #ffffff
+cursor-color = #b4a2f0
+cursor-text = #17161d
+
+palette = 0=#1e1d26
+palette = 1=#e06c85
+palette = 2=#8fc98a
+palette = 3=#e0c080
+palette = 4=#7aa2f7
+palette = 5=#b09cf0
+palette = 6=#6fc4d6
+palette = 7=#c8c8d4
+palette = 8=#625f78
+palette = 9=#f08aa0
+palette = 10=#a8dca2
+palette = 11=#f0d49a
+palette = 12=#9ab8ff
+palette = 13=#c8b8ff
+palette = 14=#92d8e6
+palette = 15=#ededf5

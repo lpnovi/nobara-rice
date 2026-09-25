@@ -1,0 +1,65 @@
+# ---- Secrets & credentials (never commit) ----
+*.key
+*.pem
+*.p12
+*.pfx
+*.gpg
+*.asc
+id_rsa*
+id_ed25519*
+*.kdbx
+.env
+.env.*
+*token*
+*secret*
+*password*
+*.cookie
+cookies*
+kwalletd/
+kwallet*
+.netrc
+.git-credentials
+
+# ---- Private app data that must never land here ----
+**/net.imput.helium/
+**/Equicord/
+**/discord/
+**/akonadi*/
+**/evolution/
+**/Steam/
+**/signond/
+**/goa-1.0/
+**/kdeconnect/
+**/emailidentities
+**/user-places.xbel*
+**/recently-used.xbel
+**/kactivitymanagerd*
+**/kwinoutputconfig.json
+**/plasma-org.kde.plasma.desktop-appletsrc
+**/*history*
+
+# ---- Backups, logs, temp files ----
+*.bak
+*.bak-*
+*.backup
+*.orig
+*.log
+*~
+*.swp
+*.kate-swp
+.directory
+backups/
+
+# ---- Build output of refind/src ----
+refind/src/nobara-purple/
+refind/src/v2-preview/
+
+# ---- OS / editor junk ----
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ---- Wallpapers are never committed (see wallpapers/README.md) ----
+wallpapers/*
+!wallpapers/README.md

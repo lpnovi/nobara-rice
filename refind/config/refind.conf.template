@@ -1,0 +1,34 @@
+# /boot/efi/EFI/refind/refind.conf
+# Minimal Nobara / Windows / GRUB front end. Written from scratch (the
+# packaged sample is at /usr/share/rEFInd/refind/refind.conf-sample).
+
+timeout 12
+use_nvram false
+resolution max
+scanfor internal,external,manual
+
+# Nobara kernels (on /boot, ext4, read via drivers_x64/ext4_x64.efi) fold into
+# one entry; newest kernel boots by default, older + 0-rescue kernels are in
+# the F2 / Insert / Tab submenu. Kernel options: /boot/refind_linux.conf
+fold_linux_kernels true
+default_selection vmlinuz
+
+# No second-row tool icons
+showtools
+
+# --- Presentation-layer hiding only: no files are deleted ------------------
+# Vendor recovery FAT partition (p6)
+dont_scan_volumes @UUID_1@
+# p7 (Nobara ESP): shim/GRUB/fallback loaders -> reached via the GRUB entry below
+# p1 (Windows ESP): EFI/Boot/bootx64.efi duplicate of bootmgfw.efi
+dont_scan_dirs +,@UUID_2@:/EFI/BOOT,@UUID_2@:/EFI/fedora,@UUID_3@:/EFI/Boot
+# memtest86+ in /boot (not in GRUB's menu either)
+dont_scan_files +,memtest86+x64.efi
+
+# Advanced / recovery: the exact chain firmware entry 0004 uses today
+menuentry "GRUB" {
+    icon   /EFI/refind/themes/nobara-purple/icons/os_grub.png
+    loader /EFI/fedora/shimx64.efi
+}
+
+include themes/nobara-purple/theme.conf

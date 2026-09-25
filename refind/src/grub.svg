@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2C8A4C"/>
+      <stop offset="1" stop-color="#124A27"/>
+    </linearGradient>
+    <linearGradient id="glyph" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#B6FFCB"/>
+      <stop offset="1" stop-color="#46D57C"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0"    stop-color="#FFFFFF" stop-opacity="0.16"/>
+      <stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="70" y="89" width="116" height="90" rx="14" fill="#06280F"/>
+  <rect x="70" y="84" width="116" height="90" rx="14" fill="url(#tile)"/>
+  <rect x="70" y="84" width="116" height="90" rx="14" fill="url(#sheen)"/>
+  <rect x="71.5" y="85.5" width="113" height="87" rx="12.5" fill="none" stroke="#6BE699" stroke-opacity="0.35" stroke-width="2"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="9">
+    <polyline points="93,110 110,127 93,144" stroke="#0A3318" stroke-opacity="0.6" transform="translate(0 2)"/>
+    <line x1="119" y1="146" x2="146" y2="146" stroke="#0A3318" stroke-opacity="0.6" transform="translate(0 2)"/>
+    <polyline points="93,110 110,127 93,144" stroke="url(#glyph)"/>
+    <line x1="119" y1="146" x2="146" y2="146" stroke="url(#glyph)"/>
+  </g>
+</svg>

@@ -1,0 +1,19 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "",
+                "Name": "GloriousEggroll"
+            }
+        ],
+        "Category": "",
+        "Description": "Nobara with refined rounded panel, popup and snap-preview corners (user-local derivative)",
+        "EnabledByDefault": true,
+        "Id": "Nobara-Enhanced",
+        "License": "GPLv2+",
+        "Name": "Nobara Enhanced",
+        "Version": "0.0.17.1",
+        "Website": ""
+    },
+    "X-Plasma-API-Minimum-Version": "6.0"
+}

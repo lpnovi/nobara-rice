@@ -1,0 +1,13 @@
+{
+    "KPackageStructure": "KWin/Script",
+    "KPlugin": {
+        "Id": "ghostty-geometry",
+        "Name": "Ghostty Geometry Memory",
+        "Description": "Reopens Ghostty windows at the last size and position you left them at",
+        "EnabledByDefault": false,
+        "License": "MIT",
+        "Version": "1.0"
+    },
+    "X-Plasma-API": "javascript",
+    "X-Plasma-MainScript": "code/main.js"
+}

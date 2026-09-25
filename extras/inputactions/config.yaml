@@ -1,0 +1,22 @@
+mouse:
+  gestures: []
+
+
+touchpad:
+  gestures:
+    - type: swipe
+      fingers: 4
+      angle: 209.06913588611297-343.26215929722946
+      bidirectional: true
+      block_events: true
+      actions:
+        - on: update
+          interval: "-20"
+          input:
+            - keyboard:
+                - volumeup
+        - on: update
+          interval: "20"
+          input:
+            - keyboard:
+                - volumedown

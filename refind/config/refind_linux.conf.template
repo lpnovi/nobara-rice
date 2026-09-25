@@ -1,0 +1,3 @@
+"Boot Nobara"            "root=UUID=@ROOT_UUID@ ro rootflags=subvol=@ quiet splash"
+"Boot Nobara (verbose)"  "root=UUID=@ROOT_UUID@ ro rootflags=subvol=@"
+"Rescue target"          "root=UUID=@ROOT_UUID@ ro rootflags=subvol=@ systemd.unit=rescue.target"

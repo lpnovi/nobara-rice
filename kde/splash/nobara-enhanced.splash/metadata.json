@@ -1,0 +1,9 @@
+{
+    "KPlugin": {
+        "Id": "nobara-enhanced.splash",
+        "Name": "Nobara Enhanced Splash",
+        "Description": "Minimal dark splash screen with the Nobara logo",
+        "Version": "1.1"
+    },
+    "KPackageStructure": "Plasma/LookAndFeel"
+}

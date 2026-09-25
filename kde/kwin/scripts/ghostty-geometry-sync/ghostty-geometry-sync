@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Persists Ghostty window geometry logged by the ghostty-geometry KWin script into kwinrc.
+set -u
+journalctl --user -f -n0 -o cat _SYSTEMD_USER_UNIT=plasma-kwin_wayland.service |
+while IFS= read -r line; do
+    if [[ $line =~ GHOSTTY_GEOMETRY\ (-?[0-9]+,-?[0-9]+,[0-9]+,[0-9]+) ]]; then
+        kwriteconfig6 --file kwinrc --group Script-ghostty-geometry --key geometry "${BASH_REMATCH[1]}"
+    fi
+done
