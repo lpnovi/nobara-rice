@@ -5,7 +5,7 @@ This repository mixes my original work with third-party material. **The MIT lice
 is not licensed by me at all.
 
 > **Scope of the MIT license.** [`LICENSE`](LICENSE) covers only the original work of the
-> copyright holder (lpnovi) in this repository. It does **not** cover:
+> copyright holder named in `LICENSE`. It does **not** cover:
 > - the Nobara-Enhanced Plasma Style, which stays GPL-2.0-or-later (§2)
 > - other third-party code and assets, which keep their own licenses (§3)
 > - the Nobara logo, the Windows logo, or other third-party artwork and trademarks, which
