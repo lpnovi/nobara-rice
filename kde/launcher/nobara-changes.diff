@@ -1,0 +1,701 @@
+diff -ruN -x config.qml -x main.xml -x metadata.json -x Messages.sh -x CMakeLists.txt -x code upstream-6.7.4/AbstractKickoffItemDelegate.qml local.lpnovi.kickoff/contents/ui/AbstractKickoffItemDelegate.qml
+--- upstream-6.7.4/AbstractKickoffItemDelegate.qml
++++ local.lpnovi.kickoff/contents/ui/AbstractKickoffItemDelegate.qml
+@@ -260,17 +260,25 @@
+     PC3.ToolTip.visible: mouseArea.containsMouse && PC3.ToolTip.text.length > 0
+     PC3.ToolTip.delay: Kirigami.Units.toolTipDelay
+ 
+-    background: Loader {
+-        active: (root.GridView?.isCurrentItem || root.ListView?.isCurrentItem) ?? false
+-        sourceComponent: PlasmaExtras.Highlight {
+-            anchors.fill: parent
+-            z: (root.Drag.active ?? false) ? 3 : 0
+-            hovered: true
++    // Nobara: always-present rounded highlight that fades with the current
++    // item (instead of a Loader), so moving the selection cross-fades.
++    readonly property bool nobaraIsCurrent: (root.GridView?.isCurrentItem || root.ListView?.isCurrentItem) ?? false
++    background: NobaraHighlight {
++        z: (root.Drag.active ?? false) ? 3 : 0
++        inset: root.view instanceof GridView ? 3 : 1
++        opacity: root.nobaraIsCurrent ? 1 : 0
++        visible: opacity > 0
++        hovered: true
+ 
+-            pressed: root.down  && !root.isCategoryListItem
++        pressed: root.down  && !root.isCategoryListItem
+ 
+-            active: root.view.activeFocus ||
+-                    (kickoff.contentArea === root && kickoff.searchField.activeFocus)
++        // guarded: unlike the upstream Loader, this also exists in the hidden
++        // sizing delegates, which have no view (and no kickoff id in scope)
++        active: root.view !== null && (root.view.activeFocus ||
++                (kickoff.contentArea === root && kickoff.searchField.activeFocus))
++
++        Behavior on opacity {
++            NumberAnimation { duration: NobaraStyle.duration; easing.type: Easing.OutCubic }
+         }
+     }
+ }
+diff -ruN -x config.qml -x main.xml -x metadata.json -x Messages.sh -x CMakeLists.txt -x code upstream-6.7.4/ApplicationsPage.qml local.lpnovi.kickoff/contents/ui/ApplicationsPage.qml
+--- upstream-6.7.4/ApplicationsPage.qml
++++ local.lpnovi.kickoff/contents/ui/ApplicationsPage.qml
+@@ -58,12 +58,16 @@
+             id: sideBarDelegate
+             width: view.availableWidth
+             isCategoryListItem: true
+-            background: PlasmaExtras.Highlight {
++            background: NobaraHighlight {
+                 // I have to do this for it to actually fill the item for some reason
+                 anchors.fill: parent
+-                active: false
+-                hovered: sideBarDelegate.mouseArea.containsMouse || (flashFavoriteAnimation.running && sideBarDelegate.index === 0) || ((dropAreaLoader.item as DropArea)?.containsAcceptableDrag ?? false) || sideBarDelegate.ListView.isCurrentItem
+-                visible: !sideBarDelegate.isSeparator && hovered
++                // Nobara: current category = selected pill (stronger while the
++                // sidebar has focus); pointer-only = faint hover tint
++                readonly property bool emphasized: (flashFavoriteAnimation.running && sideBarDelegate.index === 0) || ((dropAreaLoader.item as DropArea)?.containsAcceptableDrag ?? false) || sideBarDelegate.ListView.isCurrentItem
++                sidebar: true
++                active: sideBarDelegate.ListView.view?.activeFocus ?? false
++                hovered: emphasized
++                visible: !sideBarDelegate.isSeparator && (emphasized || sideBarDelegate.mouseArea.containsMouse)
+                 opacity: flashFavoriteAnimation.running && sideBarDelegate.index === 0 ? root.flashFavorite : 1
+             }
+ 
+diff -ruN -x config.qml -x main.xml -x metadata.json -x Messages.sh -x CMakeLists.txt -x code upstream-6.7.4/BasePage.qml local.lpnovi.kickoff/contents/ui/BasePage.qml
+--- upstream-6.7.4/BasePage.qml
++++ local.lpnovi.kickoff/contents/ui/BasePage.qml
+@@ -14,6 +14,7 @@
+ import QtQuick.Layouts
+ import QtQuick.Templates as T
+ import org.kde.ksvg as KSvg
++import org.kde.kirigami as Kirigami
+ import org.kde.plasma.plasmoid
+ import org.kde.plasma.workspace.trianglemousefilter
+ 
+@@ -79,7 +80,8 @@
+             }
+         }
+     }
+-    KSvg.SvgItem {
++    // Nobara: softer hairline, inset from top/bottom; same width as the theme line
++    Item {
+         id: separator
+         anchors {
+             top: parent.top
+@@ -87,10 +89,14 @@
+             bottom: parent.bottom
+         }
+         LayoutMirroring.enabled: kickoff.sideBarOnRight
+-        implicitWidth: naturalSize.width
++        implicitWidth: KickoffSingleton.lineSvg.vertLineWidth
+         implicitHeight: implicitWidth
+-        elementId: "vertical-line"
+-        svg: KickoffSingleton.lineSvg
++        Rectangle {
++            anchors.fill: parent
++            anchors.topMargin: Kirigami.Units.largeSpacing
++            anchors.bottomMargin: Kirigami.Units.largeSpacing
++            color: NobaraStyle.separator
++        }
+     }
+     Loader {
+         id: contentAreaLoader
+diff -ruN -x config.qml -x main.xml -x metadata.json -x Messages.sh -x CMakeLists.txt -x code upstream-6.7.4/Footer.qml local.lpnovi.kickoff/contents/ui/Footer.qml
+--- upstream-6.7.4/Footer.qml
++++ local.lpnovi.kickoff/contents/ui/Footer.qml
+@@ -37,6 +37,18 @@
+     spacing: kickoff.backgroundMetrics.spacing
+     position: PC3.ToolBar.Footer
+ 
++    // Nobara: launcher-scoped purple accent. The Plasma theme's own colors
++    // file is Breeze blue; overriding here keeps the rest of Plasma untouched.
++    Kirigami.Theme.highlightColor: NobaraStyle.accent
++    Kirigami.Theme.highlightedTextColor: NobaraStyle.highlightedText
++    Kirigami.Theme.hoverColor: NobaraStyle.accentHover
++    Kirigami.Theme.focusColor: NobaraStyle.accentFocus
++
++    // Nobara: rounder outer corners. The theme heading SVG (kept for its
++    // metrics, but hidden) uses ~3px corners that mask the frame's corner.
++    background.opacity: 0
++    NobaraHeadingBackground { heading: root; footer: true }
++
+     PC3.TabBar {
+         id: tabBar
+ 
+@@ -76,13 +88,19 @@
+             highlightRangeMode: ListView.ApplyRange
+             preferredHighlightBegin: tabBar.tabWidth
+             preferredHighlightEnd: width - tabBar.tabWidth
+-            highlight: KSvg.FrameSvgItem {
++            // Nobara: rounded purple pill instead of the blue tab-bar underline
++            highlight: Item {
+                 anchors.top: tabBarListView.contentItem.top
+                 anchors.bottom: tabBarListView.contentItem.bottom
+                 anchors.topMargin: -root.topPadding
+                 anchors.bottomMargin: -root.bottomPadding
+-                imagePath: "widgets/tabbar"
+-                prefix: tabBar.position === PC3.TabBar.Header ? "north-active-tab" : "south-active-tab"
++                NobaraHighlight {
++                    anchors.fill: parent
++                    anchors.topMargin: Kirigami.Units.smallSpacing
++                    anchors.bottomMargin: Kirigami.Units.smallSpacing
++                    inset: 0
++                    active: tabBar.activeFocus
++                }
+             }
+             keyNavigationEnabled: false
+         }
+diff -ruN -x config.qml -x main.xml -x metadata.json -x Messages.sh -x CMakeLists.txt -x code upstream-6.7.4/FullRepresentation.qml local.lpnovi.kickoff/contents/ui/FullRepresentation.qml
+--- upstream-6.7.4/FullRepresentation.qml
++++ local.lpnovi.kickoff/contents/ui/FullRepresentation.qml
+@@ -23,6 +23,13 @@
+ EmptyPage {
+     id: root
+ 
++    // Nobara: launcher-scoped purple accent. The Plasma theme's own colors
++    // file is Breeze blue; overriding here keeps the rest of Plasma untouched.
++    Kirigami.Theme.highlightColor: NobaraStyle.accent
++    Kirigami.Theme.highlightedTextColor: NobaraStyle.highlightedText
++    Kirigami.Theme.hoverColor: NobaraStyle.accentHover
++    Kirigami.Theme.focusColor: NobaraStyle.accentFocus
++
+     // kickoff is Kickoff.qml
+     leftPadding: -kickoff.backgroundMetrics.leftPadding
+     rightPadding: -kickoff.backgroundMetrics.rightPadding
+diff -ruN -x config.qml -x main.xml -x metadata.json -x Messages.sh -x CMakeLists.txt -x code upstream-6.7.4/Header.qml local.lpnovi.kickoff/contents/ui/Header.qml
+--- upstream-6.7.4/Header.qml
++++ local.lpnovi.kickoff/contents/ui/Header.qml
+@@ -39,6 +39,18 @@
+ 
+     spacing: kickoff.backgroundMetrics.spacing
+ 
++    // Nobara: launcher-scoped purple accent. The Plasma theme's own colors
++    // file is Breeze blue; overriding here keeps the rest of Plasma untouched.
++    Kirigami.Theme.highlightColor: NobaraStyle.accent
++    Kirigami.Theme.highlightedTextColor: NobaraStyle.highlightedText
++    Kirigami.Theme.hoverColor: NobaraStyle.accentHover
++    Kirigami.Theme.focusColor: NobaraStyle.accentFocus
++
++    // Nobara: rounder outer corners. The theme heading SVG (kept for its
++    // metrics, but hidden) uses ~3px corners that mask the frame's corner.
++    background.opacity: 0
++    NobaraHeadingBackground { heading: root }
++
+     function tabSetFocus(event, invertedTarget, normalTarget) {
+         // Set input focus depending on whether layout order matches focus chain order
+         // normalTarget is optional
+@@ -186,6 +198,27 @@
+ 
+                 PlasmaExtras.SearchField {
+                     id: searchField
++                    // Nobara: rounded field; the stock lineedit SVG uses the theme's blue ViewFocus
++                    Kirigami.Theme.highlightColor: NobaraStyle.accent
++                    Kirigami.Theme.highlightedTextColor: NobaraStyle.highlightedText
++                    background: Rectangle {
++                        // TextField/SearchField derive their padding from background.margins
++                        readonly property QtObject margins: QtObject {
++                            readonly property real left: Kirigami.Units.smallSpacing + 2
++                            readonly property real right: Kirigami.Units.smallSpacing + 2
++                            readonly property real top: Kirigami.Units.smallSpacing + 3
++                            readonly property real bottom: Kirigami.Units.smallSpacing + 3
++                        }
++                        radius: NobaraStyle.radius
++                        antialiasing: true
++                        color: NobaraStyle.fieldFill
++                        border.width: 1
++                        border.color: searchField.activeFocus ? NobaraStyle.accent
++                            : searchField.hovered ? NobaraStyle.fieldBorderHover : NobaraStyle.fieldBorder
++                        Behavior on border.color {
++                            ColorAnimation { duration: NobaraStyle.duration; easing.type: Easing.OutCubic }
++                        }
++                    }
+                     Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                     Layout.fillWidth: true
+                     Layout.leftMargin: kickoff.backgroundMetrics.leftPadding
+@@ -241,7 +274,7 @@
+                     }
+                 }
+ 
+-                PC3.ToolButton {
++                NobaraToolButton { // Nobara: QML-drawn frame (stock SVG hover/pressed is Breeze blue)
+                     id: configureButton
+                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                     visible: Plasmoid.internalAction("configure").enabled
+@@ -268,7 +301,7 @@
+                     }
+                     onClicked: plasmoid.internalAction("configure").trigger()
+                 }
+-                PC3.ToolButton {
++                NobaraToolButton { // Nobara: QML-drawn frame (stock SVG hover/pressed is Breeze blue)
+                     id: pinButton
+                     checkable: true
+                     checked: Plasmoid.configuration.pin
+diff -ruN -x config.qml -x main.xml -x metadata.json -x Messages.sh -x CMakeLists.txt -x code upstream-6.7.4/KickoffGridDelegate.qml local.lpnovi.kickoff/contents/ui/KickoffGridDelegate.qml
+--- upstream-6.7.4/KickoffGridDelegate.qml
++++ local.lpnovi.kickoff/contents/ui/KickoffGridDelegate.qml
+@@ -43,6 +43,11 @@
+             Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
+ 
+             animated: false
++            // Nobara: restrained hover response; a transform, so no layout change
++            scale: root.mouseArea.containsMouse && root.enabled ? NobaraStyle.gridIconHoverScale : 1
++            Behavior on scale {
++                NumberAnimation { duration: NobaraStyle.duration; easing.type: Easing.OutCubic }
++            }
+             selected: root.iconAndLabelsShouldlookSelected
+             source: root.removalPlaceholderActive ? "list-remove" : (root.decoration || root.icon.name || root.icon.source)
+ 
+diff -ruN -x config.qml -x main.xml -x metadata.json -x Messages.sh -x CMakeLists.txt -x code upstream-6.7.4/KickoffGridView.qml local.lpnovi.kickoff/contents/ui/KickoffGridView.qml
+--- upstream-6.7.4/KickoffGridView.qml
++++ local.lpnovi.kickoff/contents/ui/KickoffGridView.qml
+@@ -162,7 +162,8 @@
+             }
+         }
+ 
+-        PC3.ScrollBar.vertical: PC3.ScrollBar {
++        // Nobara: rounded QML scrollbar, same 18px metrics as the stock one
++        PC3.ScrollBar.vertical: NobaraScrollBar {
+             id: verticalScrollBar
+             parent: root
+             z: 2
+diff -ruN -x config.qml -x main.xml -x metadata.json -x Messages.sh -x CMakeLists.txt -x code upstream-6.7.4/KickoffListDelegate.qml local.lpnovi.kickoff/contents/ui/KickoffListDelegate.qml
+--- upstream-6.7.4/KickoffListDelegate.qml
++++ local.lpnovi.kickoff/contents/ui/KickoffListDelegate.qml
+@@ -52,6 +52,11 @@
+             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+ 
+             animated: false
++            // Nobara: restrained hover response; a transform, so no layout change
++            scale: root.mouseArea.containsMouse && root.enabled && !root.isCategoryListItem ? NobaraStyle.listIconHoverScale : 1
++            Behavior on scale {
++                NumberAnimation { duration: NobaraStyle.duration; easing.type: Easing.OutCubic }
++            }
+             selected: root.iconAndLabelsShouldlookSelected
+             source: root.removalPlaceholderActive ? "list-remove" : (root.decoration || root.icon.name || root.icon.source)
+         }
+@@ -138,12 +143,15 @@
+         active: root.isSeparator
+ 
+         asynchronous: false
+-        sourceComponent: KSvg.SvgItem {
+-            width: parent.width
++        // Nobara: softer, inset hairline instead of the theme line SVG
++        sourceComponent: Item {
+             height: KickoffSingleton.lineSvg.horLineHeight
+-
+-            svg: KickoffSingleton.lineSvg
+-            elementId: "horizontal-line"
++            Rectangle {
++                anchors.fill: parent
++                anchors.leftMargin: Kirigami.Units.largeSpacing
++                anchors.rightMargin: Kirigami.Units.largeSpacing
++                color: NobaraStyle.separator
++            }
+         }
+     }
+ }
+diff -ruN -x config.qml -x main.xml -x metadata.json -x Messages.sh -x CMakeLists.txt -x code upstream-6.7.4/KickoffListView.qml local.lpnovi.kickoff/contents/ui/KickoffListView.qml
+--- upstream-6.7.4/KickoffListView.qml
++++ local.lpnovi.kickoff/contents/ui/KickoffListView.qml
+@@ -175,7 +175,8 @@
+             }
+         }
+ 
+-        PC3.ScrollBar.vertical: PC3.ScrollBar {
++        // Nobara: rounded QML scrollbar, same 18px metrics as the stock one
++        PC3.ScrollBar.vertical: NobaraScrollBar {
+             id: verticalScrollBar
+             parent: root
+             z: 2
+diff -ruN -x config.qml -x main.xml -x metadata.json -x Messages.sh -x CMakeLists.txt -x code upstream-6.7.4/LeaveButtons.qml local.lpnovi.kickoff/contents/ui/LeaveButtons.qml
+--- upstream-6.7.4/LeaveButtons.qml
++++ local.lpnovi.kickoff/contents/ui/LeaveButtons.qml
+@@ -110,7 +110,7 @@
+             id: buttonRepeater
+ 
+             model: filteredButtonsModel
+-            delegate: PC3.ToolButton {
++            delegate: NobaraToolButton { // Nobara: QML-drawn frame (stock SVG hover/pressed is Breeze blue)
+                 required property int index
+                 required property var model
+ 
+@@ -163,7 +163,7 @@
+     // Just like Kirigami.ActionToolBar, it takes two actual instances of a
+     // button with different display modes to calculate the layout properly
+     // without binding loops.
+-    component OverflowMenuButton : PC3.ToolButton {
++    component OverflowMenuButton : NobaraToolButton { // Nobara: QML-drawn frame (stock SVG hover/pressed is Breeze blue)
+         Accessible.role: Accessible.ButtonMenu
+         icon.width: Kirigami.Units.iconSizes.smallMedium
+         icon.height: Kirigami.Units.iconSizes.smallMedium
+diff -ruN -x config.qml -x main.xml -x metadata.json -x Messages.sh -x CMakeLists.txt -x code upstream-6.7.4/ListOfGridsViewDelegate.qml local.lpnovi.kickoff/contents/ui/ListOfGridsViewDelegate.qml
+--- upstream-6.7.4/ListOfGridsViewDelegate.qml
++++ local.lpnovi.kickoff/contents/ui/ListOfGridsViewDelegate.qml
+@@ -40,8 +40,9 @@
+ 
+         background: Loader {
+             active: itemDelegate.GridView.isCurrentItem && root.isCurrentSectionGrid
+-            sourceComponent: PlasmaExtras.Highlight {
++            sourceComponent: NobaraHighlight {
+                 anchors.fill: parent
++                inset: 3
+                 z: (root.Drag.active ?? false) ? 3 : 0
+                 hovered: true
+ 
+diff -ruN -x config.qml -x main.xml -x metadata.json -x Messages.sh -x CMakeLists.txt -x code upstream-6.7.4/NobaraHeadingBackground.qml local.lpnovi.kickoff/contents/ui/NobaraHeadingBackground.qml
+--- upstream-6.7.4/NobaraHeadingBackground.qml
++++ local.lpnovi.kickoff/contents/ui/NobaraHeadingBackground.qml
+@@ -0,0 +1,64 @@
++/*
++    Replacement band for Kickoff's header/footer PlasmoidHeading.
++
++    The theme's widgets/plasmoidheading.svg draws the band out to the popup
++    edge with ~3px outer corners, which hides the popup frame's rounder corner
++    and makes the launcher look sharp. This draws the same band (75% background
++    fill + 15% hairline on the inner edge) with outer corners that follow the
++    frame radius. The SVG background is kept (transparent) so PlasmoidHeading's
++    inset/padding logic, and therefore the layout, is unchanged.
++
++    SPDX-License-Identifier: GPL-2.0-or-later
++*/
++import QtQuick
++import org.kde.kirigami as Kirigami
++
++Item {
++    id: band
++
++    // The PlasmoidHeading this band belongs to
++    required property Item heading
++    property bool footer: false
++
++    parent: heading
++    z: -1
++    x: heading.background ? heading.background.x : 0
++    y: heading.background ? heading.background.y : 0
++    width: heading.background ? heading.background.width : 0
++    height: heading.background ? heading.background.height : 0
++
++    // Only round a corner where the popup frame itself has that corner
++    readonly property int allEdges: Qt.LeftEdge | Qt.TopEdge | Qt.RightEdge | Qt.BottomEdge
++    readonly property int windowBorders: (Window.window && Window.window.borders !== undefined)
++        ? Window.window.borders : allEdges
++    readonly property int headingBorders: heading.enabledBorders !== undefined ? heading.enabledBorders : allEdges
++    readonly property bool outerEdge: (windowBorders & (footer ? Qt.BottomEdge : Qt.TopEdge)) !== 0
++    readonly property real leftRadius: outerEdge && (windowBorders & Qt.LeftEdge) && (headingBorders & Qt.LeftEdge)
++        ? NobaraStyle.frameRadius : 0
++    readonly property real rightRadius: outerEdge && (windowBorders & Qt.RightEdge) && (headingBorders & Qt.RightEdge)
++        ? NobaraStyle.frameRadius : 0
++
++    Rectangle {
++        anchors.fill: parent
++        // The SVG was tinted by the Plasma theme's ColorScheme-Background
++        // (Nobara-Enhanced colors: 0,0,0); Kirigami.Theme here follows the app
++        // color scheme instead (#111111), which looked lighter, so pin it.
++        color: "#000000"
++        opacity: 0.75
++        antialiasing: true
++        topLeftRadius: band.footer ? 0 : band.leftRadius
++        topRightRadius: band.footer ? 0 : band.rightRadius
++        bottomLeftRadius: band.footer ? band.leftRadius : 0
++        bottomRightRadius: band.footer ? band.rightRadius : 0
++    }
++
++    // Hairline on the inner edge (bottom of the header, top of the footer)
++    Rectangle {
++        anchors.left: parent.left
++        anchors.right: parent.right
++        y: band.footer ? 0 : parent.height - height
++        height: 1
++        color: Kirigami.Theme.textColor
++        opacity: 0.15
++    }
++}
+diff -ruN -x config.qml -x main.xml -x metadata.json -x Messages.sh -x CMakeLists.txt -x code upstream-6.7.4/NobaraHighlight.qml local.lpnovi.kickoff/contents/ui/NobaraHighlight.qml
+--- upstream-6.7.4/NobaraHighlight.qml
++++ local.lpnovi.kickoff/contents/ui/NobaraHighlight.qml
+@@ -0,0 +1,62 @@
++/*
++    Rounded purple replacement for PlasmaExtras.Highlight.
++
++    PlasmaExtras.Highlight draws widgets/viewitem, whose hover/focus colors come
++    from the Plasma theme's ButtonFocus/ViewHover entries (Breeze blue) and
++    cannot be overridden through Kirigami.Theme, so this is drawn in QML.
++
++    Same API subset as PlasmaExtras.Highlight: hovered, pressed, active.
++
++    SPDX-License-Identifier: GPL-2.0-or-later
++*/
++import QtQuick
++
++Item {
++    id: highlight
++
++    // true: the "current"/selected item; false: plain hover feedback
++    property bool hovered: true
++    property bool pressed: false
++    // false: selected item whose view does not have focus
++    property bool active: true
++    property real inset: 1
++    // sidebar categories use the slightly stronger sidebar* palette
++    property bool sidebar: false
++
++    Rectangle {
++        anchors.fill: parent
++        anchors.margins: highlight.inset
++        radius: NobaraStyle.radius
++        antialiasing: true
++
++        color: {
++            if (highlight.pressed) {
++                return NobaraStyle.pressedFill;
++            }
++            if (!highlight.hovered) {
++                return NobaraStyle.hoverFill;
++            }
++            if (highlight.sidebar) {
++                return highlight.active ? NobaraStyle.sidebarSelectedFill : NobaraStyle.sidebarInactiveFill;
++            }
++            return highlight.active ? NobaraStyle.selectedFill : NobaraStyle.inactiveFill;
++        }
++        border.width: 1
++        border.color: {
++            if (!highlight.hovered && !highlight.pressed) {
++                return "transparent";
++            }
++            if (highlight.sidebar) {
++                return highlight.active ? NobaraStyle.sidebarSelectedBorder : NobaraStyle.sidebarInactiveBorder;
++            }
++            return highlight.active ? NobaraStyle.selectedBorder : NobaraStyle.inactiveBorder;
++        }
++
++        Behavior on color {
++            ColorAnimation { duration: NobaraStyle.duration; easing.type: Easing.OutCubic }
++        }
++        Behavior on border.color {
++            ColorAnimation { duration: NobaraStyle.duration; easing.type: Easing.OutCubic }
++        }
++    }
++}
+diff -ruN -x config.qml -x main.xml -x metadata.json -x Messages.sh -x CMakeLists.txt -x code upstream-6.7.4/NobaraScrollBar.qml local.lpnovi.kickoff/contents/ui/NobaraScrollBar.qml
+--- upstream-6.7.4/NobaraScrollBar.qml
++++ local.lpnovi.kickoff/contents/ui/NobaraScrollBar.qml
+@@ -0,0 +1,49 @@
++/*
++    Slim rounded scrollbar for the Kickoff fork.
++
++    The stock PC3.ScrollBar draws widgets/scrollbar, whose hover state uses the
++    Plasma theme's Breeze-blue highlight (KSvg ignores Kirigami.Theme
++    overrides). Metrics match the stock one under this theme (6px handle,
++    6px padding, 18px total) so the views' width math is unchanged.
++
++    SPDX-License-Identifier: GPL-2.0-or-later
++*/
++import QtQuick
++import QtQuick.Templates as T
++
++T.ScrollBar {
++    id: control
++
++    implicitWidth: implicitContentWidth + leftPadding + rightPadding
++    implicitHeight: implicitContentHeight + topPadding + bottomPadding
++
++    hoverEnabled: interactive
++    visible: policy === T.ScrollBar.AlwaysOn || (policy === T.ScrollBar.AsNeeded && size > 0 && size < 1)
++    minimumSize: horizontal ? height / width : width / height
++    padding: 6
++
++    contentItem: Rectangle {
++        implicitWidth: 6
++        implicitHeight: 6
++        radius: Math.min(width, height) / 2
++        antialiasing: true
++        color: control.pressed ? NobaraStyle.accentFocus
++            : control.hovered ? NobaraStyle.accentHover
++            : Qt.rgba(1, 1, 1, 0.22)
++
++        Behavior on color {
++            ColorAnimation { duration: NobaraStyle.duration; easing.type: Easing.OutCubic }
++        }
++    }
++
++    background: Rectangle {
++        color: Qt.rgba(1, 1, 1, 0.04)
++        radius: NobaraStyle.radius
++        opacity: control.hovered && control.interactive ? 1 : 0
++        visible: opacity > 0
++
++        Behavior on opacity {
++            NumberAnimation { duration: NobaraStyle.duration; easing.type: Easing.OutCubic }
++        }
++    }
++}
+diff -ruN -x config.qml -x main.xml -x metadata.json -x Messages.sh -x CMakeLists.txt -x code upstream-6.7.4/NobaraStyle.qml local.lpnovi.kickoff/contents/ui/NobaraStyle.qml
+--- upstream-6.7.4/NobaraStyle.qml
++++ local.lpnovi.kickoff/contents/ui/NobaraStyle.qml
+@@ -0,0 +1,52 @@
++/*
++    Nobara Enhanced Purple palette for the local Kickoff fork.
++    Keep in sync with ~/.local/share/color-schemes/NobaraEnhancedPurple.colors
++    and the palette in ~/.local/share/nobara-enhanced-apptheme/gen_kvantum.py.
++
++    SPDX-License-Identifier: GPL-2.0-or-later
++*/
++pragma Singleton
++
++import QtQuick
++
++QtObject {
++    // Base palette
++    readonly property color accent: "#6c54aa"
++    readonly property color accentHover: "#7a63c0"
++    readonly property color accentFocus: "#8c73d2"
++    readonly property color lavender: "#b4a2f0"
++    readonly property color text: "#dedde6"
++    readonly property color highlightedText: "#ffffff"
++    readonly property color disabledText: "#6f6c80"
++
++    // Item highlight states (drawn over the near-black popup background)
++    readonly property color selectedFill: Qt.rgba(108 / 255, 84 / 255, 170 / 255, 0.34)
++    readonly property color selectedBorder: Qt.rgba(140 / 255, 115 / 255, 210 / 255, 0.55)
++    readonly property color inactiveFill: Qt.rgba(108 / 255, 84 / 255, 170 / 255, 0.17)
++    readonly property color inactiveBorder: Qt.rgba(140 / 255, 115 / 255, 210 / 255, 0.24)
++    // Sidebar category highlight: ~20% stronger than the app selection so the
++    // current category stays obvious while browsing apps
++    readonly property color sidebarSelectedFill: Qt.rgba(108 / 255, 84 / 255, 170 / 255, 0.41)
++    readonly property color sidebarSelectedBorder: Qt.rgba(140 / 255, 115 / 255, 210 / 255, 0.66)
++    readonly property color sidebarInactiveFill: Qt.rgba(108 / 255, 84 / 255, 170 / 255, 0.21)
++    readonly property color sidebarInactiveBorder: Qt.rgba(140 / 255, 115 / 255, 210 / 255, 0.29)
++    readonly property color hoverFill: Qt.rgba(150 / 255, 139 / 255, 225 / 255, 0.10)
++    readonly property color pressedFill: Qt.rgba(108 / 255, 84 / 255, 170 / 255, 0.52)
++
++    // Search field
++    readonly property color fieldFill: "#15141b"
++    readonly property color fieldBorder: "#2a2836"
++    readonly property color fieldBorderHover: "#3d3456"
++
++    // Separators
++    readonly property color separator: Qt.rgba(1, 1, 1, 0.07)
++
++    // Geometry and motion
++    readonly property real radius: 10
++    // Outer popup corner; must match the dialogs/background radius of the
++    // Nobara-Enhanced Plasma theme (gen.py: dialog R = 10)
++    readonly property real frameRadius: 10
++    readonly property int duration: 130
++    readonly property real gridIconHoverScale: 1.06
++    readonly property real listIconHoverScale: 1.05
++}
+diff -ruN -x config.qml -x main.xml -x metadata.json -x Messages.sh -x CMakeLists.txt -x code upstream-6.7.4/NobaraToolButton.qml local.lpnovi.kickoff/contents/ui/NobaraToolButton.qml
+--- upstream-6.7.4/NobaraToolButton.qml
++++ local.lpnovi.kickoff/contents/ui/NobaraToolButton.qml
+@@ -0,0 +1,42 @@
++/*
++    PC3.ToolButton with a QML-drawn rounded background.
++
++    The stock background is the widgets/button SVG, whose hover/pressed/focus
++    frames are tinted by the Plasma theme's own (Breeze blue) colors; KSvg does
++    not honour Kirigami.Theme overrides, so the frame is drawn here instead.
++    Padding matches the theme's toolbutton margins (4px), so sizes are unchanged.
++
++    SPDX-License-Identifier: GPL-2.0-or-later
++*/
++import QtQuick
++import org.kde.kirigami as Kirigami
++import org.kde.plasma.components as PC3
++
++PC3.ToolButton {
++    id: control
++
++    topPadding: Kirigami.Units.smallSpacing
++    bottomPadding: Kirigami.Units.smallSpacing
++    leftPadding: Kirigami.Units.smallSpacing
++    rightPadding: Kirigami.Units.smallSpacing
++
++    background: Rectangle {
++        readonly property bool engaged: control.down || control.checked
++        radius: NobaraStyle.radius
++        antialiasing: true
++        opacity: control.enabled ? 1 : 0.5
++        color: engaged ? NobaraStyle.selectedFill
++            : control.hovered ? NobaraStyle.hoverFill : "transparent"
++        border.width: 1
++        border.color: control.visualFocus ? NobaraStyle.accentFocus
++            : engaged ? NobaraStyle.selectedBorder
++            : control.hovered ? NobaraStyle.inactiveBorder : "transparent"
++
++        Behavior on color {
++            ColorAnimation { duration: NobaraStyle.duration; easing.type: Easing.OutCubic }
++        }
++        Behavior on border.color {
++            ColorAnimation { duration: NobaraStyle.duration; easing.type: Easing.OutCubic }
++        }
++    }
++}
+diff -ruN -x config.qml -x main.xml -x metadata.json -x Messages.sh -x CMakeLists.txt -x code upstream-6.7.4/PlacesPage.qml local.lpnovi.kickoff/contents/ui/PlacesPage.qml
+--- upstream-6.7.4/PlacesPage.qml
++++ local.lpnovi.kickoff/contents/ui/PlacesPage.qml
+@@ -25,12 +25,13 @@
+             width: view.availableWidth
+             isCategoryListItem: true
+             isMultilineText: false
+-            background: PlasmaExtras.Highlight {
++            background: NobaraHighlight {
+                 // I have to do this for it to actually fill the item for some reason
+                 anchors.fill: parent
+-                active: false
+-                hovered: delegate.mouseArea.containsMouse || delegate.ListView.isCurrentItem
+-                visible: !delegate.isSeparator && hovered
++                sidebar: true
++                active: delegate.ListView.view?.activeFocus ?? false
++                hovered: delegate.ListView.isCurrentItem
++                visible: !delegate.isSeparator && (hovered || delegate.mouseArea.containsMouse)
+             }
+         }
+     }
+diff -ruN -x config.qml -x main.xml -x metadata.json -x Messages.sh -x CMakeLists.txt -x code upstream-6.7.4/qmldir local.lpnovi.kickoff/contents/ui/qmldir
+--- upstream-6.7.4/qmldir
++++ local.lpnovi.kickoff/contents/ui/qmldir
+@@ -0,0 +1,30 @@
++AbstractKickoffItemDelegate 1.0 AbstractKickoffItemDelegate.qml
++singleton ActionMenu 1.0 ActionMenu.qml
++ApplicationsPage 1.0 ApplicationsPage.qml
++BasePage 1.0 BasePage.qml
++ConfigGeneral 1.0 ConfigGeneral.qml
++DropAreaGridView 1.0 DropAreaGridView.qml
++DropAreaListView 1.0 DropAreaListView.qml
++EmptyPage 1.0 EmptyPage.qml
++Footer 1.0 Footer.qml
++FullRepresentation 1.0 FullRepresentation.qml
++Header 1.0 Header.qml
++HorizontalStackView 1.0 HorizontalStackView.qml
++KickoffDropArea 1.0 KickoffDropArea.qml
++KickoffGridDelegate 1.0 KickoffGridDelegate.qml
++KickoffGridView 1.0 KickoffGridView.qml
++KickoffListDelegate 1.0 KickoffListDelegate.qml
++KickoffListView 1.0 KickoffListView.qml
++singleton KickoffSingleton 1.0 KickoffSingleton.qml
++LeaveButtons 1.0 LeaveButtons.qml
++ListOfGridsView 1.0 ListOfGridsView.qml
++ListOfGridsViewDelegate 1.0 ListOfGridsViewDelegate.qml
++NormalPage 1.0 NormalPage.qml
++PlacesPage 1.0 PlacesPage.qml
++SectionView 1.0 SectionView.qml
++VerticalStackView 1.0 VerticalStackView.qml
++singleton NobaraStyle 1.0 NobaraStyle.qml
++NobaraHighlight 1.0 NobaraHighlight.qml
++NobaraToolButton 1.0 NobaraToolButton.qml
++NobaraScrollBar 1.0 NobaraScrollBar.qml
++NobaraHeadingBackground 1.0 NobaraHeadingBackground.qml
+diff -ruN -x config.qml -x main.xml -x metadata.json -x Messages.sh -x CMakeLists.txt -x code upstream-6.7.4/SectionView.qml local.lpnovi.kickoff/contents/ui/SectionView.qml
+--- upstream-6.7.4/SectionView.qml
++++ local.lpnovi.kickoff/contents/ui/SectionView.qml
+@@ -51,8 +51,9 @@
+ 
+         background: Loader {
+             active: delegate.GridView.isCurrentItem
+-            sourceComponent: PlasmaExtras.Highlight {
++            sourceComponent: NobaraHighlight {
+                 anchors.fill: parent
++                inset: 2
+                 z: (root.Drag.active ?? false) ? 3 : 0
+                 hovered: true
+ 

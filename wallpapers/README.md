@@ -9,7 +9,7 @@ To use your own, drop them here (images in this folder are git-ignored):
 
 | File | Used for |
 |---|---|
-| `desktop.jpg` (or .png/.webp) | desktop, set by `scripts/install.sh` step 7 |
-| `lockscreen.jpg` | lock screen, set by step 8 (`kde/config/kscreenlockerrc.ini`) |
+| `desktop.jpg` (or .png/.webp) | desktop, set by `./install.sh` step 9 |
+| `lockscreen.jpg` | lock screen, set by `./install.sh` step 10 (`kde/config/kscreenlockerrc.ini`) |
 
-The login screen (Plasma Login Manager) is set by hand: System Settings → Login Screen.
+The login screen is set by hand: System Settings → Login Screen.

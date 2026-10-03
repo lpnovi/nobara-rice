@@ -1,5 +1,9 @@
 # rEFInd — `nobara-purple`
 
+> **Machine-specific / legacy.** This documents the boot menu of the retired Nobara laptop (two ESPs,
+> Btrfs `subvol=@`, Windows dual boot). It is **not** part of the CachyOS restore and `./install.sh` never
+> touches it. Commands below use Fedora tooling (`dnf`, `grub2-*`); on Arch the package is `extra/refind`.
+
 > ⚠️ **The boot manager is the riskiest part of this rice.** A mistake here can leave a machine
 > that won't boot. Nothing in this repo changes boot entries automatically. Every step below
 > is manual on purpose. Keep a live USB nearby and know how to open your firmware's boot menu.

@@ -1,220 +1,209 @@
 # nobara-rice
 
-A dark, purple-accented **Nobara Linux + KDE Plasma 6** setup: a refined Nobara Plasma Style,
-Geist fonts, candy icons, Catppuccin cursors, playful window effects, a matching Ghostty
-terminal, and a themed **rEFInd** boot menu that sits in front of Nobara, Windows and GRUB.
+A dark, near-black, purple-accented **KDE Plasma 6 (Wayland)** rice, captured from its source laptop
+(Nobara 44) and packaged so it can be reproduced on a fresh **CachyOS KDE** (or any Arch-based Plasma 6) install.
 
-This repo keeps the files that make up the look and the scripts to put them back.
-It holds **only** appearance-related settings. No whole config folders, app data or credentials.
+Near-black Nobara Plasma Style · purple **Nobara Enhanced Purple** color scheme + generated **Kvantum**
+app theme · Geist fonts · candy-icons · Catppuccin Mocha Mauve cursor · **rounded window corners on
+every window (including Steam/Helium)** · Ripple open/close animation · Magic Lamp · Wobbly Windows ·
+a custom quick-tile glide · a restyled Kickoff launcher · a hover-lift dock · translucent Ghostty.
 
-| | |
-|---|---|
-| **Distro** | Nobara Linux 44 (KDE Plasma Desktop Edition) |
-| **Desktop** | KDE Plasma 6.7.4 on Wayland, KWin 6.7.4 |
-| **Boot** | rEFInd 0.14.2 → Nobara (direct kernel boot) / Windows / GRUB fallback |
-| **Terminal** | Ghostty 1.3.1 |
+> **For AI agents:** start with [`AGENTS.md`](AGENTS.md). The authoritative live inventory is
+> [`docs/audit.md`](docs/audit.md); the manual procedure is [`docs/setup.md`](docs/setup.md).
 
----
-
-## Screenshots
-
-| | |
-|---|---|
-| ![Desktop](screenshots/desktop.png) | ![rEFInd](screenshots/refind-preview.png) |
-| *Desktop — placeholder, add `screenshots/desktop.png`* | *rEFInd boot menu (rendered preview)* |
-
-More placeholders to fill in: `screenshots/kickoff.png`, `screenshots/ghostty.png`,
-`screenshots/lockscreen.png`. See [`screenshots/README.md`](screenshots/README.md).
-
----
-
-## What's in the rice
-
-### Look
-| Part | Setting | Source |
+| | Source laptop (2026-10-02) | Target |
 |---|---|---|
-| Global theme | Nobara (`org.nobaraproject.desktop`) | ships with Nobara |
-| Plasma Style | **Nobara-Enhanced**, my own derivative of Nobara with rounder panel (6 px), popup (10 px) and snap-outline corners | [`kde/plasma-style/`](kde/plasma-style) |
-| Colors | Nobara (stock, unmodified) | ships with Nobara |
-| Application style | Breeze | ships with Plasma |
-| Window decoration | Breeze: large buttons, left-aligned title, medium shadow, no outline, `HIAX` button order | [`kde/config/breezerc.ini`](kde/config/breezerc.ini) |
-| Rounded window corners | KDE-Rounded-Corners effect, radius 10 | [matinlotfali/KDE-Rounded-Corners](https://github.com/matinlotfali/KDE-Rounded-Corners), built from source |
-| Icons | candy-icons | `candy-icon-theme` package (or [EliverLara/candy-icons](https://github.com/EliverLara/candy-icons)) |
-| Cursor | Catppuccin Mocha Mauve | [catppuccin/cursors](https://github.com/catppuccin/cursors) |
-| Fonts | **Geist 11** (UI), Geist 9 (small), Geist 10 (titles), **Geist Mono 10** (fixed); slight hinting, RGB subpixel | `geist-font`, `geist-font-mono` (Terra) |
-| Splash | Custom minimal splash (near-black + logo) | [`kde/splash/`](kde/splash) |
-| Wallpapers | dark game screenshots (not included, copyrighted) | bring your own, see [`wallpapers/`](wallpapers) |
-| Launcher icon | Gradient Nobara logo | [`assets/nobara-logo.png`](assets/nobara-logo.png) |
+| Distro | Nobara Linux 44 (Fedora-based) | CachyOS KDE / Arch |
+| Plasma / KWin | 6.7.4 / 6.7.4, **Wayland** | 6.7.x (Arch: 6.7.5 at time of writing), **Wayland** |
+| Qt | 6.11.2 | 6.11.x |
+| Terminal | Ghostty 1.3.1 | `extra/ghostty` 1.3.1 |
+| Kvantum | 1.1.6 | `extra/kvantum` 1.1.8 |
 
-### Motion & effects
-- Animation speed **0.75×** (a bit faster than default)
-- **Ripple [Niri port]** window open/close animation, locally patched to skip Spectacle ([`kde/kwin/effects/`](kde/kwin/effects))
-- **Magic Lamp** minimize, **Wobbly Windows**, **Translucency**
-- Scale, Squash and Shake Cursor turned off
-- Overview hot corner disabled; swiping down from the top edge (touch) locks the screen
-- Night Light on, 4400 K
+---
 
-### Panels
-- **Top bar** (36 px, dodge windows, translucent): launcher with Nobara logo · window title · spacer · media · system tray · weather · clock
-- **Bottom dock** (50 px, floating, fit-to-content, translucent): pinned apps
+## Quick start on CachyOS
 
-### Terminal
-- **Ghostty** with a custom `nobara-enhanced` palette (purple selection `#6C54AA`), 90% opacity + blur,
-  font size 10, 5×5 padding, bar cursor, right-click paste ([`ghostty/`](ghostty))
-- A KWin script + user service that reopens Ghostty at its last size/position
-  ([`kde/kwin/scripts/`](kde/kwin/scripts))
+```bash
+git clone https://github.com/lpnovi/nobara-rice.git ~/nobara-rice
+cd ~/nobara-rice
+./install.sh --dry-run          # read what it will do; changes nothing
+./install.sh --replace-panels   # interactive; installs packages, files, settings and the two panels
+# log out and back in
+```
+`./install.sh` without `--replace-panels` does everything except rebuilding your panels (asked, default no).
+`--yes` answers every question with its default; `--no-packages` skips pacman/AUR; `--with-apps` also
+installs Steam + Helium. Run it as your normal user inside a Plasma Wayland session (it uses `sudo` only for
+pacman, and `paru`/`yay` for the AUR — CachyOS ships `paru`).
 
-### Boot
-- **rEFInd** `nobara-purple` theme: black background, soft purple selection ring, no text clutter
-  - gradient **purple Nobara** icon → direct EFI-stub kernel boot
-  - **blue Windows** icon → Windows Boot Manager
-  - **green GRUB** icon → shim/GRUB, kept as a fallback
-  - older kernels and rescue entries folded into the submenu (F2 / Tab)
-- GRUB itself uses the Catppuccin GRUB theme
+**Undo:** `./uninstall.sh` (restores every file the last install replaced and deletes what it created;
+`--dry-run` first). Packages are left installed; the removal command is printed.
 
-### Input
-- InputActions gesture: 4-finger horizontal swipe changes the volume ([`extras/inputactions/`](extras/inputactions))
+---
+
+## What makes up the look
+
+### Theme
+| Part | Live value | Repo | Comes from on CachyOS |
+|---|---|---|---|
+| Plasma Style | **Nobara** (stock; near-black panels/popups) | [`kde/plasma-style/Nobara`](kde/plasma-style/Nobara) (vendored, GPLv2+) | installed to `~/.local/share/plasma/desktoptheme/` — Arch has no Nobara packages |
+| Plasma Style (alternate) | Nobara-Enhanced (rounder panel 6 px / popups 10 px / snap outline) — **not active** on the laptop, kept as an option | [`kde/plasma-style/Nobara-Enhanced`](kde/plasma-style/Nobara-Enhanced) | `plasma-apply-desktoptheme Nobara-Enhanced` to try |
+| Color scheme | **NobaraEnhancedPurple** (near-black `#111015` windows, `#6c54aa` selection) | [`kde/color-schemes/`](kde/color-schemes) | user-local |
+| Application style | **kvantum** → theme **NobaraEnhancedPurple** (generated) | [`kde/kvantum/`](kde/kvantum) | `extra/kvantum` + user-local theme |
+| Window decoration | Breeze: large buttons, left title, medium shadow, no outline, buttons `HIAX`, `RoundedCorners=false` | [`kde/config/breezerc.ini`](kde/config/breezerc.ini), `kwinrc.ini` | stock Breeze |
+| Icons | candy-icons | — | AUR `candy-icons-git` |
+| Cursor | catppuccin-mocha-mauve-cursors (24) | — | AUR `catppuccin-cursors-mocha` |
+| Fonts | Geist 11 (UI/menu/toolbar), Geist 9 (small), Geist 10 (window titles), Geist Mono 10 (fixed); slight hinting, RGB subpixel. Ghostty: JetBrains Mono (built-in) 10 | [`fonts/`](fonts) | AUR `ttf-geist`, `ttf-geist-mono` |
+| Splash | minimal near-black + Nobara logo | [`kde/splash/`](kde/splash) | user-local |
+| Global theme | `org.nobaraproject.desktop` on Nobara — **not used on CachyOS**; every part it set is applied individually instead | — | — |
+| GTK | Breeze GTK, dark, same fonts/icons/cursor (generated by Plasma) | — | `breeze-gtk` (comes with Plasma) |
+| Wallpapers | dark game screenshots — **not included** (copyright) | [`wallpapers/`](wallpapers) | bring your own |
+
+### Rounded corners (Steam, Helium and everything else)
+**Mechanism:** the third-party KWin effect **KDE-Rounded-Corners** (`kwin4_effect_shapecorners`), built
+from source on the laptop (git `v0.10.0-10-gee200dd`). Only `kwinrc [Round-Corners] Size=10` is set; with
+its defaults that means radius 10 for the active window, 20 for inactive ones, squircle shape, applied to
+normal windows and dialogs **regardless of decoration** — so Steam and Helium keep their own integrated top
+areas (no KDE titlebar, no window rules) and still get rounded outer corners. Maximized, fullscreen and
+tiled windows are **not** rounded (no clipping/gaps). On CachyOS it comes from AUR
+`kwin-effect-rounded-corners-git` and **must be rebuilt after every `kwin` update**.
+Details: [`kde/kwin/rounded-corners/`](kde/kwin/rounded-corners).
+
+### Motion & KWin effects
+| Behavior | Mechanism | Repo |
+|---|---|---|
+| Window **open/close** | **Ripple [Niri Port]** (`kwin6_effect_ripple`), a JavaScript + GLSL effect from kwin-niri-shaders-port, locally patched to skip Spectacle. KWin's own Scale/Glide/Fade open-close effects are not loaded (Scale explicitly disabled). | [`kde/kwin/effects/kwin6_effect_ripple`](kde/kwin/effects/kwin6_effect_ripple) |
+| **Minimize** | Magic Lamp (built-in) | `kwinrc.ini` |
+| Window move | Wobbly Windows (built-in) | `kwinrc.ini` |
+| **Quick tile** (Meta+←/→, edge drag) | **Quick Tile Glide** (`local_quicktile_glide`), user-made JS effect: 180 ms OutCubic move+resize with cross-fade | [`kde/kwin/effects/local_quicktile_glide`](kde/kwin/effects/local_quicktile_glide) |
+| Maximize/restore | built-in *Maximize* (stretch) effect, default on | — |
+| Workspace switch | built-in *Slide*, default on | — |
+| Overview / present windows | built-in Overview + Window View (defaults); overview hot corner **off** (`[Effect-overview] BorderActivate=9`) | `kwinrc.ini` |
+| Blur / transparency | built-in Blur (on) + Translucency (on); panels translucent; Ghostty 90 % + blur | `kwinrc.ini`, `ghostty/` |
+| Animation speed | `AnimationDurationFactor=0.75` (a bit faster than default) | `kdeglobals.ini`, `kwinrc.ini` |
+| Disabled | Scale, Squash, Shake Cursor | `kwinrc.ini` |
+| Tiling | custom layout 25 % / 50 % / 25 %, padding 4 (Meta+T) | written by `install.sh` step 11 |
+| Ghostty geometry | KWin script `ghostty-geometry` + user service: Ghostty reopens at its last size/position | [`kde/kwin/scripts/`](kde/kwin/scripts) |
+| Other | Night Light on, 4400 K; touch top-edge swipe = lock screen; InputActions 4-finger swipe = volume | `kwinrc.ini`, [`extras/inputactions/`](extras/inputactions) |
+
+### Panels ([`kde/panels/layout.js`](kde/panels/layout.js), references: `appletsrc.reference`, `plasmashellrc.reference`)
+- **Top bar** — 36 px, full width, not floating, *floating applets*, translucent, dodge windows:
+  **Nobara Enhanced Kickoff** (custom icon, popup pinned open) · **Window Title Reborn** · spacer · **PlasMusic Toolbar** ·
+  system tray (Notifications hidden, icons scaled to fit) · Weather · Digital Clock
+- **Bottom dock** — 50 px, floating, fit content, translucent, dodge windows: Icon-only Task Manager
+  (9 pinned launchers, spacing 0) + hidden **Task Icon Hover** helper (icons lift 2.5 px and scale 1.08 on hover, 140 ms)
+
+### Custom plasmoids / launcher
+| Id | What | Repo |
+|---|---|---|
+| `local.lpnovi.kickoff` | QML fork of Plasma 6.7.4 Kickoff: purple rounded highlights, pill sidebar, rounded search, 10 px corners, icon hover. Built by `build.py` from vendored upstream + patches. Revert: `kde/launcher/revert.sh [--purge]` | [`kde/launcher/`](kde/launcher) |
+| `local.lpnovi.taskiconhover` | hidden helper that animates the stock task manager's icons | [`kde/plasmoids/`](kde/plasmoids) |
+| `org.kde.plasma.windowtitlereborn` | third-party, vendored (no AUR package) | [`kde/plasmoids/`](kde/plasmoids) |
+| `plasmusic-toolbar` | third-party | AUR `plasma6-applets-plasmusic-toolbar` |
+
+### Terminal — Ghostty ([`ghostty/`](ghostty))
+`config.ghostty` + `themes/nobara-enhanced`: font size 10 (family = Ghostty's default JetBrains Mono),
+padding 5×5, 90 % opacity + blur, bar cursor, right-click paste, purple selection `#6C54AA`.
+
+---
+
+## Dependencies on CachyOS / Arch (verified 2026-10-02)
+
+| Package | Repo | For |
+|---|---|---|
+| `kvantum` | extra | application style engine |
+| `ghostty` | extra | terminal |
+| `python` | core | builds the Kickoff fork / Kvantum theme |
+| `qt6-tools` | extra | `qdbus6` (installer talks to plasmashell/KWin) |
+| `kdeplasma-addons` | extra | weather widget (normally already installed) |
+| `git`, `curl`, `unzip`, `rsync` | core/extra | helpers |
+| `kwin-effect-rounded-corners-git` | **AUR** | rounded corners — **rebuild after kwin updates** |
+| `ttf-geist`, `ttf-geist-mono` | AUR | fonts |
+| `candy-icons-git` | AUR | icons |
+| `catppuccin-cursors-mocha` | AUR | cursor (`catppuccin-mocha-mauve-cursors`) |
+| `inputactions-kwin` | AUR | touchpad gestures — **rebuild after kwin updates** |
+| `plasma6-applets-plasmusic-toolbar` | AUR | top-bar media widget |
+| optional: `steam` (multilib), `helium-browser-bin` (AUR) | | apps in the dock |
+
+Lists used by the installer: [`install/`](install).
+
+---
+
+## What needs a logout / restart
+- **Log out/in after installing:** fonts, cursor, splash, KWin effects (rounded corners, ripple, quick-tile glide), InputActions, tiling layout.
+- Panels: `install.sh` restarts plasmashell itself. After rebuilding the launcher fork: `systemctl --user restart plasma-plasmashell`.
+- Kvantum/color changes: restart the affected apps. Ghostty opacity: restart Ghostty (it runs single-instance).
+
+## After Plasma/KWin updates
+| Component | Kind | Action needed |
+|---|---|---|
+| KDE-Rounded-Corners | compiled KWin plugin | **rebuild** (`paru -S --rebuild kwin-effect-rounded-corners-git`) |
+| InputActions | compiled KWin plugin | **rebuild** (`paru -S --rebuild inputactions-kwin`; the package installs a reminder hook) |
+| Ripple, Quick Tile Glide, ghostty-geometry | JavaScript | nothing (unless KWin's scripting API changes) |
+| Kickoff fork | QML frozen at 6.7.4 | usually nothing; if the launcher fails to load, `kde/launcher/revert.sh` and rebase (see its README) |
+| Task Icon Hover | QML helper | nothing; if task-manager internals change it silently does nothing |
+
+## Known caveats on CachyOS
+- **Scaling:** the laptop is a 2880×1800 panel with Xwayland scale 1.6. Display scale, touchpad and mouse tuning are hardware-specific and **not** applied (values in `docs/setup.md`).
+- **Nobara-only pieces** (global theme package, `/etc/xdg` defaults from `kde-nobara`, the `org.dnf.AppCenter` dock launcher, Plasma Login Manager config) don't exist on CachyOS; the effective values are applied individually instead, and the dock skips launchers that aren't installed.
+- **Weather location** and **wallpapers** are personal and not included.
+- The **tiling layout** is stored under per-machine UUIDs; the installer writes it into whatever tiling groups KWin has created (open Meta+T once if none exist yet).
+- **rEFInd** material in [`refind/`](refind) is specific to the old dual-boot laptop (two ESPs, Btrfs `subvol=@`). It is kept for reference and is **never** applied by `install.sh`.
+
+## Rolling back
+- Everything from one install: `./uninstall.sh` (or restore by hand from `~/.local/state/nobara-rice/backup-<ts>/files/`).
+- Launcher only: `kde/launcher/revert.sh` / `--purge`.
+- App theme only: `plasma-apply-colorscheme BreezeDark && kwriteconfig6 --file kdeglobals --group KDE --key widgetStyle Breeze`.
+- Rounded corners: `paru -R kwin-effect-rounded-corners-git`.
 
 ---
 
 ## Repository layout
-
 ```
 nobara-rice/
-├── README.md
-├── LICENSE                  MIT, for my original work only
-├── LICENSING.md             what is covered by which license (read this)
-├── LICENSES/                GPL-2.0-or-later, GPL-3.0 and OFL-1.1 texts for third-party parts
-├── assets/                  nobara-logo.png (launcher, splash, rEFInd source)
+├── install.sh / uninstall.sh   CachyOS/Arch installer (+ --dry-run) and manifest-based rollback
+├── AGENTS.md                   orientation for AI agents (invariants, where things are)
+├── install/                    package lists: official, AUR, optional apps
 ├── docs/
-│   ├── setup.md             step-by-step manual reproduction
-│   └── audit.md             what was found on the source machine and where it lives
-├── extras/inputactions/     touchpad gesture config
-├── ghostty/                 config.ghostty + themes/nobara-enhanced
+│   ├── audit.md                live inventory of the source laptop + portability classification
+│   └── setup.md                manual step-by-step reproduction on CachyOS
 ├── kde/
-│   ├── config/*.ini         only the rice keys of kdeglobals, kwinrc, breezerc, …
-│   ├── kwin/effects/        Ripple effect (MIT, patched)
-│   ├── kwin/scripts/        ghostty-geometry KWin script + sync service
-│   ├── panels/              layout.js (recreates panels) + sanitized reference
-│   ├── plasma-style/        Nobara-Enhanced + tools/gen.py (regenerates the 3 changed SVGs)
-│   └── splash/              custom splash package
-├── refind/
-│   ├── config/              refind.conf / refind_linux.conf templates (UUIDs as placeholders)
-│   ├── theme/nobara-purple/ theme.conf, background, selection rings, font, icons
-│   ├── src/                 scripts + SVGs that build the theme and icons
-│   ├── install-refind-theme.sh
-│   └── README.md            the full, careful rEFInd procedure
-├── screenshots/
-├── wallpapers/              README only; drop your own desktop.jpg / lockscreen.jpg here (git-ignored)
+│   ├── config/*.ini            only the rice keys of kdeglobals, kwinrc, breezerc, plasmarc, …
+│   ├── color-schemes/          NobaraEnhancedPurple.colors
+│   ├── kvantum/                generated Kvantum theme + generator (gen_kvantum.py) + GPL base
+│   ├── plasma-style/           Nobara (stock, active) + Nobara-Enhanced (alternate) + tools/gen.py
+│   ├── launcher/               Kickoff fork sources, build.py, apply/revert
+│   ├── plasmoids/              Task Icon Hover helper, Window Title Reborn (vendored)
+│   ├── kwin/effects/           Ripple (patched, MIT) + Quick Tile Glide (own)
+│   ├── kwin/scripts/           ghostty-geometry script + sync service
+│   ├── kwin/rounded-corners/   how the rounded corners work, AUR/source install, rebuild notes
+│   ├── panels/                 layout.js + sanitized references of the live panel config
+│   └── splash/                 splash package
+├── ghostty/                    config.ghostty + themes/nobara-enhanced
+├── extras/inputactions/        touchpad gesture config
+├── fonts/  wallpapers/  screenshots/  assets/
+├── refind/                     rEFInd theme of the old laptop (machine-specific, manual only)
 └── scripts/
-    ├── install.sh           interactive, backs up everything it touches
-    ├── backup.sh            refreshes this repo from the live system (read-only on the system)
-    └── privacy-check.sh     scans the repo for personal data before you push
+    ├── backup.sh               refresh this repo from a live system (read-only on the system)
+    └── privacy-check.sh        scan the repo before pushing
 ```
 
----
-
-## Dependencies
-
-| Package | Why | Where |
-|---|---|---|
-| `geist-font`, `geist-font-mono` | UI + monospace fonts | Terra (enabled on Nobara) |
-| `candy-icon-theme` | icons | Nobara repo |
-| `ghostty` | terminal | Nobara repo |
-| `inputactions` | touchpad gestures (`kwin_gestures`) | Terra |
-| Catppuccin cursors | cursor theme | GitHub release (installer downloads it) |
-| KDE-Rounded-Corners | rounded window corners | build from source |
-| Window Title Reborn | window title in the top bar | KDE Store (Get New Widgets) |
-| `rEFInd`, `rEFInd-tools`, `rEFInd-unsigned-x64` | boot manager | Nobara repo |
-| `ImageMagick`, `inkscape` | only for rebuilding the rEFInd theme | Fedora repos |
-
----
-
-## Install
-
-### Automated (user-level)
-
-```bash
-git clone https://github.com/<you>/nobara-rice.git
-cd nobara-rice
-scripts/install.sh --dry-run   # shows every action without changing anything
-scripts/install.sh             # asks before each step
-```
-
-The installer:
-- backs up every file or folder it changes to `~/.local/state/nobara-rice/backup-<timestamp>/`
-- writes KDE settings **key by key** (your other settings stay as they are)
-- asks before system-level steps (`sudo dnf`) and before rebuilding panels. Both default to **no**.
-- **never** touches the bootloader
-
-Log out and back in afterwards so fonts, the splash and KWin plugins all load.
-
-### Manual
-Follow [`docs/setup.md`](docs/setup.md). It covers every part, including the ones the script
-leaves alone.
-
-### rEFInd
-Changing the boot manager is a separate, deliberate job. Read [`refind/README.md`](refind/README.md).
-The helper `refind/install-refind-theme.sh` only copies theme files into an **existing** rEFInd
-install. It runs as a dry run unless you pass `--apply`, and it never changes boot entries.
-
----
-
-## Backup / restore
-
-- **Refresh this repo from your live system:** `scripts/backup.sh` (try `--dry-run` first).
-  It reads only known rice files, strips paths and UUIDs, and runs a privacy check at the end.
-  Commit the result after reviewing `git diff`.
-- **Undo an install:** copy files back from `~/.local/state/nobara-rice/backup-<timestamp>/`
-  (same relative paths as in your home folder).
-- **Before publishing:** run `scripts/privacy-check.sh`.
-
----
-
-## Known limitations
-
-- `kde/panels/layout.js` could **not be tested** without rebuilding the panels on the
-  source machine. Panel opacity, "floating applets", tray hidden items and the weather location
-  must be set by hand.
-- No wallpapers are included (the originals are copyrighted game screenshots).
-- Rounded corners and InputActions are compiled KWin plugins. They must match your exact KWin
-  version and may need a rebuild after Plasma updates.
-- The rEFInd config is specific to one dual-boot laptop (two ESPs, Btrfs root `subvol=@`).
-  The templates contain `@UUID_n@` / `@ROOT_UUID@` placeholders you must fill in.
-- rEFInd's icons and resolution were tuned for a 2880×1800 panel.
-- `Xwayland` scale (1.6), display scaling and touchpad tuning are hardware-specific and not applied.
-
-## Disclaimer
-
-This is a personal setup shared as-is. Some hardware- and system-specific settings (display
-scaling, disk UUIDs, partition layout, boot entries) **will** need adjustment on another machine.
-Read the scripts before running them, and be especially careful with anything that touches the
-EFI system partition. Keep a way to boot your system (for example, the firmware boot menu or a
-live USB) before changing the boot manager.
+## Keeping it current
+On a machine running the rice: `scripts/backup.sh --dry-run`, then `scripts/backup.sh`, review `git diff`,
+run `scripts/privacy-check.sh`, commit. It extracts only listed keys, sanitizes paths/UUIDs and never writes
+outside the repo. (It was written on Nobara; on CachyOS it works the same for user-local files.)
 
 ## Credits
-
-Nobara Project (base theme, logo artwork) · KDE · [Geist](https://github.com/vercel/geist-font) ·
+Nobara Project (Nobara Plasma Style, logo artwork) · KDE (Kickoff, Breeze) · [Geist](https://github.com/vercel/geist-font) ·
 [candy-icons](https://github.com/EliverLara/candy-icons) · [Catppuccin](https://github.com/catppuccin) ·
+[Kvantum](https://github.com/tsujan/Kvantum) (KvSimplicityDark base) ·
 [kwin-niri-shaders-port](https://github.com/mj0x0/kwin-niri-shaders-port) ·
 [KDE-Rounded-Corners](https://github.com/matinlotfali/KDE-Rounded-Corners) ·
-[InputActions](https://github.com/InputActions/kwin) · [rEFInd](https://www.rodsbooks.com/refind/) ·
-[Papirus](https://github.com/PapirusDevelopmentTeam/papirus-icon-theme) (Windows pane geometry) ·
-[Window Title Reborn](https://github.com/ShrekBytes/window-title-reborn)
+[InputActions](https://github.com/InputActions/kwin) · [Window Title Reborn](https://github.com/ShrekBytes/window-title-reborn) ·
+[PlasMusic Toolbar](https://github.com/ccatterina/plasmusic-toolbar) · [rEFInd](https://www.rodsbooks.com/refind/) ·
+[Papirus](https://github.com/PapirusDevelopmentTeam/papirus-icon-theme)
 
 ## License
-
-This repository is **mixed-license**. See [`LICENSING.md`](LICENSING.md) for the file-by-file
-breakdown.
-
-- **My original work** (scripts, configuration, documentation, the splash code, my own rEFInd
-  artwork) is released under the **[MIT License](LICENSE)**.
-- **The Nobara-Enhanced Plasma Style** is a derivative of Nobara's Plasma Style and stays under
-  **GPL-2.0-or-later** ([`kde/plasma-style/COPYING.md`](kde/plasma-style/COPYING.md)). It is
-  **not** MIT.
-- **Third-party code and assets** keep their own licenses: the Ripple effect (MIT, its
-  authors), rEFInd's font (GPL-3.0-or-later / OFL-1.1), and the Papirus-derived Windows pane
-  geometry (GPL-3.0).
-- **The Nobara logo, the Windows logo and other third-party artwork or trademarks are not
-  covered by my MIT license.** They remain the property of their respective owners and
-  projects, and are included only to document and reproduce this personal setup.
+Mixed-license; see [`LICENSING.md`](LICENSING.md). My own scripts/config/docs are [MIT](LICENSE).
+The Nobara and Nobara-Enhanced Plasma Styles are GPL-2.0-or-later; the Kickoff fork is GPL-2.0-or-later /
+LGPL-2.0-or-later (KDE); the Kvantum theme is GPL-3.0-or-later (KvSimplicityDark base); Window Title Reborn
+is GPL-3.0-or-later; the Ripple effect is MIT (its authors). Logos and trademarks are not licensed by me.

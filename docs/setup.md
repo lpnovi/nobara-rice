@@ -1,211 +1,166 @@
-# Detailed setup
+# Manual setup on CachyOS / Arch (KDE Plasma 6, Wayland)
 
-This is the manual path. `scripts/install.sh` automates steps 1–9 of the user-level parts,
-with backups and prompts. Anything marked **manual** is never automated.
-
-Tested on: Nobara 44, Plasma 6.7.4, Wayland. On other Fedora-based distros, the Nobara-specific
-pieces (global theme, color scheme, logo) come from the `nobara-*` packages and may be missing.
-
----
+`./install.sh` automates all of this with backups and prompts. This is the same procedure by hand, for
+when you want to apply only parts of it or debug a step. Run everything from the repo root as your normal
+user, inside a Plasma **Wayland** session. Paths: `~/.config` = `$XDG_CONFIG_HOME`, `~/.local/share` = `$XDG_DATA_HOME`.
 
 ## 0. Before you start
-
 ```bash
-# Keep a copy of your current Plasma config
 tar -C ~ -czf ~/plasma-config-before-rice.tar.gz \
   .config/kdeglobals .config/kwinrc .config/plasmarc .config/plasmashellrc \
   .config/plasma-org.kde.plasma.desktop-appletsrc .config/kcminputrc \
-  .config/ksplashrc .config/kscreenlockerrc .config/breezerc
+  .config/ksplashrc .config/kscreenlockerrc .config/breezerc 2>/dev/null
 ```
 
 ## 1. Packages
-
 ```bash
-sudo dnf install geist-font geist-font-mono candy-icon-theme ghostty inputactions
+sudo pacman -S --needed kvantum ghostty python rsync git curl unzip kdeplasma-addons qt6-tools
+paru -S --needed kwin-effect-rounded-corners-git ttf-geist ttf-geist-mono candy-icons-git \
+     catppuccin-cursors-mocha inputactions-kwin plasma6-applets-plasmusic-toolbar
+# optional apps: sudo pacman -S steam ; paru -S helium-browser-bin
 ```
-Geist and InputActions come from **Terra**, which Nobara enables by default. If you're not on
-Nobara, get Geist from <https://github.com/vercel/geist-font/releases> and put the files in
-`~/.local/share/fonts/Geist/`, then run `fc-cache -f`.
+(`paru` ships with CachyOS; `yay` works the same.) Package names were verified against archlinux.org and
+the AUR on 2026-10-02.
 
-## 2. Cursor theme
-
+## 2. Plasma Style
 ```bash
-curl -fLO https://github.com/catppuccin/cursors/releases/latest/download/catppuccin-mocha-mauve-cursors.zip
-unzip catppuccin-mocha-mauve-cursors.zip -d ~/.local/share/icons/
-plasma-apply-cursortheme catppuccin-mocha-mauve-cursors
+mkdir -p ~/.local/share/plasma/desktoptheme
+cp -r kde/plasma-style/Nobara kde/plasma-style/Nobara-Enhanced ~/.local/share/plasma/desktoptheme/
+plasma-apply-desktoptheme Nobara          # the live choice; Nobara-Enhanced is the rounder alternate
 ```
-
-## 3. Plasma Style (Nobara-Enhanced)
-
-```bash
-cp -r kde/plasma-style/Nobara-Enhanced ~/.local/share/plasma/desktoptheme/
-plasma-apply-desktoptheme Nobara-Enhanced
-```
-This is a full copy of `/usr/share/plasma/desktoptheme/Nobara` with three assets changed:
-
-| File | Change |
-|---|---|
-| `widgets/panel-background.svgz` | corner radius 3 → 6 |
-| `dialogs/background.svgz` | radius 10, hairline border, subtle top sheen (all popups and tooltips) |
-| `widgets/translucentbackground.svgz` (new) | window-snap/tile preview: 8 px radius, soft highlight tint + outline |
-
-`kde/plasma-style/tools/gen.py` regenerates those three from the original SVGs:
+`Nobara` is the unmodified stock style from Nobara's `kde-nobara` 6.7.4 package (GPLv2+), vendored because
+Arch doesn't have it. `Nobara-Enhanced` differs in three SVGs (panel radius 6, popup radius 10 with hairline
+and sheen, rounded snap outline); regenerate them with `kde/plasma-style/tools/gen.py`:
 ```bash
 T=$(mktemp -d)
-zcat /usr/share/plasma/desktoptheme/Nobara/widgets/panel-background.svgz > $T/widgets_panel-background.svg
-zcat /usr/share/plasma/desktoptheme/Nobara/dialogs/background.svgz      > $T/dialogs_background.svg
-python3 kde/plasma-style/tools/gen.py $T      # writes $T/out_*.svg
-# then gzip each out_*.svg into the matching .svgz inside Nobara-Enhanced/
+zcat kde/plasma-style/Nobara/widgets/panel-background.svgz > $T/widgets_panel-background.svg
+zcat kde/plasma-style/Nobara/dialogs/background.svgz      > $T/dialogs_background.svg
+python3 kde/plasma-style/tools/gen.py $T      # writes $T/out_*.svg; gzip into Nobara-Enhanced/*.svgz
 ```
-To revert: `plasma-apply-desktoptheme Nobara`.
 
-## 4. Colors, icons, application style, fonts
-
-System Settings or the command line:
+## 3. Colors + application style (Kvantum)
 ```bash
-plasma-apply-colorscheme Nobara                 # stock Nobara colors (unmodified)
-/usr/libexec/plasma-changeicons candy-icons
+install -Dm644 kde/color-schemes/NobaraEnhancedPurple.colors ~/.local/share/color-schemes/NobaraEnhancedPurple.colors
+plasma-apply-colorscheme NobaraEnhancedPurple
+mkdir -p ~/.config/Kvantum && cp -r kde/kvantum/NobaraEnhancedPurple ~/.config/Kvantum/
+kwriteconfig6 --file ~/.config/Kvantum/kvantum.kvconfig --group General --key theme NobaraEnhancedPurple
+kwriteconfig6 --file kdeglobals --group KDE --key widgetStyle kvantum
+kwriteconfig6 --file kdeglobals --group KDE --key frameContrast 0.12
 ```
-Then apply the saved keys. Each `kde/config/<file>.ini` holds only the keys this rice changes.
-Write them with `kwriteconfig6`, for example:
+Restart apps to see it. To regenerate the theme after palette edits: `python3 kde/kvantum/gen_kvantum.py`.
+
+## 4. Icons, cursor, fonts and the remaining keys
+```bash
+/usr/lib/plasma-changeicons candy-icons
+plasma-apply-cursortheme catppuccin-mocha-mauve-cursors
+```
+Every other rice key is in `kde/config/<rcfile>.ini` (only the keys this rice changes). Apply each with
+`kwriteconfig6 --file <rcfile> --group <Group> --key <key> <value>`, e.g.
 ```bash
 kwriteconfig6 --file kdeglobals --group General --key font "Geist,11,-1,5,400,0,0,0,0,0,0,0,0,0,0,1,,0,0"
 ```
-or let `scripts/install.sh` do all of them (step 8).
-
 | Setting | Value |
 |---|---|
-| General font | Geist 11 |
+| General / menu / toolbar font | Geist 11 |
 | Fixed-width | Geist Mono 10 |
 | Small | Geist 9 |
-| Toolbar / menu | Geist 11 |
 | Window title | Geist 10 |
-| Anti-aliasing | on, slight hinting, RGB subpixel |
-| Application style | Breeze |
-| Animation speed | 0.75 (`AnimationDurationFactor`) |
+| Rendering | antialias on, hinting slight, subpixel RGB |
+| Animation speed | 0.75 (`AnimationDurationFactor`, in kdeglobals and kwinrc) |
+| Decoration | Breeze, button size Large, title left, shadow Medium, outline off, buttons right `HIAX`, border Normal |
+| Default terminal | Ghostty (`TerminalApplication=/usr/bin/ghostty --gtk-single-instance=true`) |
 
-GTK apps follow automatically. Plasma rewrites `~/.config/gtk-3.0|4.0/settings.ini`
-(Breeze GTK, dark preference, same font, icons and cursor).
+GTK apps follow automatically (Plasma rewrites `~/.config/gtk-{3,4}.0/settings.ini`).
 
-## 5. Window decoration & effects
-
-- **Decoration:** Breeze, button size *Large*, title *left*, shadow *Medium*, outline *off*,
-  buttons on the right: *Keep above · Minimize · Maximize · Close* (`HIAX`), border size *Normal*.
-- **Desktop Effects** (System Settings → Window Management → Desktop Effects):
-  - ✅ Ripple [Niri Port] (install below), Magic Lamp, Wobbly Windows, Translucency
-  - ❌ Scale, Squash, Shake Cursor
-- **Screen Edges:** overview hot corner off (`BorderActivate=9`). **Touch Screen:** top edge → Lock Screen.
-- **Night Light:** on, 4400 K night temperature (the schedule/location isn't saved; set it again).
-
-### Ripple effect (patched)
+## 5. KWin effects, rounded corners, tiling
 ```bash
-cp -r kde/kwin/effects/kwin6_effect_ripple ~/.local/share/kwin/effects/
-kwriteconfig6 --file kwinrc --group Plugins --key kwin6_effect_rippleEnabled true
-qdbus org.kde.KWin /KWin reconfigure
+mkdir -p ~/.local/share/kwin/effects
+cp -r kde/kwin/effects/kwin6_effect_ripple kde/kwin/effects/local_quicktile_glide ~/.local/share/kwin/effects/
+# kde/config/kwinrc.ini sets: blur, ripple, local_quicktile_glide, magiclamp, wobblywindows, translucency on;
+# scale, squash, shakecursor off; kwin_gestures, ghostty-geometry on; [Round-Corners] Size=10;
+# overview hot corner off; touch top edge = lock screen; Night Light 4400 K.
+qdbus6 org.kde.KWin /KWin reconfigure
 ```
+- **Rounded corners**: provided by `kwin-effect-rounded-corners-git` (step 1). See
+  `kde/kwin/rounded-corners/README.md` for exactly how it produces the Steam/Helium corners, the
+  source-build fallback and the **rebuild-after-kwin-update** requirement.
+- **Tiling layout** (Meta+T): three columns 25 % / 50 % / 25 %, padding 4. KWin stores it per desktop/screen
+  UUID in `kwinrc [Tiling][<desktop>][<output>]` as
+  `tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}`, `padding=4`.
+  Set it in the editor, or let `install.sh` write it into the existing groups, then relog.
 
-### Rounded window corners (manual: compiled plugin, system-wide)
-```bash
-sudo dnf install git cmake gcc-c++ extra-cmake-modules kwin-devel kf6-kconfigwidgets-devel \
-     kf6-kcmutils-devel qt6-qtbase-devel
-git clone https://github.com/matinlotfali/KDE-Rounded-Corners && cd KDE-Rounded-Corners
-cmake -B build -DCMAKE_INSTALL_PREFIX=/usr && cmake --build build -j
-sudo cmake --install build
-```
-Then enable **ShapeCorners** in Desktop Effects and set the radius to **10**. Rebuild after
-each KWin update. Check the upstream README for the current dependency list.
-
-## 6. Splash & lock screen
-
+## 6. Splash, lock screen, login screen
 ```bash
 cp -r kde/splash/nobara-enhanced.splash ~/.local/share/plasma/look-and-feel/
+kwriteconfig6 --file ksplashrc --group KSplash --key Engine KSplashQML
 kwriteconfig6 --file ksplashrc --group KSplash --key Theme nobara-enhanced.splash
 ```
-Lock screen: System Settings → Screen Locking → Appearance → pick your wallpaper
-(or put it at `wallpapers/lockscreen.jpg` and let `install.sh` set it).
+Lock screen: System Settings → Screen Locking → Appearance (or `wallpapers/lockscreen.jpg` + `install.sh`).
+Login screen: CachyOS's display manager is configured separately (System Settings → Login Screen); on the
+laptop it showed the lock-screen image. Not automated.
 
-**Login screen (manual, system-level):** Nobara 44 uses **Plasma Login Manager**. Set its
-wallpaper in System Settings → Colors & Themes → Login Screen. That dialog copies the image to
-`/var/lib/plasmalogin/wallpapers/` and writes `/etc/plasmalogin.conf` with root rights.
-On the source machine, the login screen uses the same image as the lock screen.
-
-## 7. Panels
-
-Either run the script (it backs up first):
+## 7. Plasmoids and the launcher fork
 ```bash
-qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript \
-  "var REPLACE_PANELS=false; var KICKOFF_ICON=\"$HOME/.local/share/nobara-rice/nobara-logo.png\"; $(cat kde/panels/layout.js)"
+mkdir -p ~/.local/share/plasma/plasmoids
+cp -r kde/plasmoids/local.lpnovi.taskiconhover kde/plasmoids/org.kde.plasma.windowtitlereborn ~/.local/share/plasma/plasmoids/
+python3 kde/launcher/build.py     # builds ~/.local/share/plasma/plasmoids/local.lpnovi.kickoff
 ```
-…or build them by hand from `kde/panels/appletsrc.reference`:
+To switch an existing Kickoff to the fork: `kde/launcher/apply.sh`; back: `kde/launcher/revert.sh [--purge]`.
 
-**Top panel:** top edge, height 36, not floating, *Dodge windows*, opacity *Translucent*,
-"floating applets" on. Widgets, left to right:
-Application Launcher (icon: `assets/nobara-logo.png`) · Window Title Reborn
-(get it from *Add Widgets → Get New Widgets*; custom size 27, fixed length 438, hide when no window) ·
-Panel Spacer · Media Player · System Tray · Weather Report (set your own location) · Digital Clock.
+## 8. Panels
+Either the script (back up `plasma-org.kde.plasma.desktop-appletsrc` and `plasmashellrc` first):
+```bash
+qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript \
+  "var REPLACE_PANELS=true; var KICKOFF_ICON=\"$HOME/.local/share/nobara-rice/nobara-logo.png\"; $(cat kde/panels/layout.js)"
+```
+(copy `assets/nobara-logo.png` to that path first). It prints `PANEL_IDS <top> <dock>`. Then, with plasmashell stopped:
+```bash
+systemctl --user stop plasma-plasmashell
+kwriteconfig6 --file plasmashellrc --group PlasmaViews --group "Panel <top>" --key floatingApplets 1
+kwriteconfig6 --file plasmashellrc --group PlasmaViews --group "Panel <top>" --key panelOpacity 2
+kwriteconfig6 --file plasmashellrc --group PlasmaViews --group "Panel <dock>" --key panelOpacity 2
+systemctl --user start plasma-plasmashell
+```
+…or build them by hand from `kde/panels/appletsrc.reference` / `plasmashellrc.reference`:
+- **Top**: top edge, 36 px, not floating, floating applets on, translucent, dodge windows. Kickoff fork
+  (icon `assets/nobara-logo.png`) · Window Title Reborn (custom size 27, fixed length 438, hide when no
+  window) · spacer · PlasMusic Toolbar · System Tray (Notifications hidden) · Weather (your location) · Digital Clock.
+- **Bottom**: bottom edge, 50 px, floating, fit content, translucent, dodge windows. Icon-only Task Manager
+  (spacing 0, pinned apps) + "Task Icon Hover (local)" (invisible except in Edit Mode).
 
-**Bottom dock:** bottom edge, height 50, floating, width *Fit content*, *Dodge windows*,
-opacity *Translucent*. One Icons-only Task Manager, icon spacing 0, with pinned launchers.
-
-The script can't set these, so do them by hand: opacity, floating applets, weather location,
-and the system tray's hidden items (Notifications is hidden in the tray on the source machine).
-
-## 8. Ghostty
-
+## 9. Ghostty
 ```bash
 mkdir -p ~/.config/ghostty/themes
-cp ghostty/config.ghostty ~/.config/ghostty/
-cp ghostty/themes/nobara-enhanced ~/.config/ghostty/themes/
+cp ghostty/config.ghostty ~/.config/ghostty/ && cp ghostty/themes/nobara-enhanced ~/.config/ghostty/themes/
 ghostty +validate-config
 ```
-Font family is left at Ghostty's default (JetBrains Mono), size 10.
-Set Ghostty as the default terminal: System Settings → Default Applications → Terminal.
-
-**Geometry memory:**
+Geometry memory (reopens at last size/position):
 ```bash
 cp -r kde/kwin/scripts/ghostty-geometry ~/.local/share/kwin/scripts/
-install -m 755 kde/kwin/scripts/ghostty-geometry-sync/ghostty-geometry-sync ~/.local/bin/
-cp kde/kwin/scripts/ghostty-geometry-sync/ghostty-geometry-sync.service ~/.config/systemd/user/
+install -Dm755 kde/kwin/scripts/ghostty-geometry-sync/ghostty-geometry-sync ~/.local/bin/ghostty-geometry-sync
+install -Dm644 kde/kwin/scripts/ghostty-geometry-sync/ghostty-geometry-sync.service ~/.config/systemd/user/ghostty-geometry-sync.service
 kwriteconfig6 --file kwinrc --group Plugins --key ghostty-geometryEnabled true
 systemctl --user daemon-reload && systemctl --user enable --now ghostty-geometry-sync.service
-qdbus org.kde.KWin /KWin reconfigure
 ```
+Don't add a KWin "Remember size" window rule for Ghostty — it fights the script.
 
-## 9. Touchpad gesture (InputActions)
-
+## 10. Touchpad gesture (InputActions)
 ```bash
-mkdir -p ~/.config/inputactions && cp extras/inputactions/config.yaml ~/.config/inputactions/
+install -Dm644 extras/inputactions/config.yaml ~/.config/inputactions/config.yaml
 kwriteconfig6 --file kwinrc --group Plugins --key kwin_gesturesEnabled true
 ```
-A 4-finger horizontal swipe changes the volume.
+4-finger horizontal swipe = volume. `inputactions-kwin` must be rebuilt after kwin updates.
 
-## 10. GRUB theme (manual, system-level)
+## 11. Log out and back in.
 
-GRUB is the fallback behind rEFInd and uses the **Catppuccin** GRUB theme:
-```bash
-git clone https://github.com/catppuccin/grub && cd grub
-sudo mkdir -p /boot/grub2/themes/catppuccin
-sudo cp -r src/catppuccin-mocha-grub-theme/* /boot/grub2/themes/catppuccin/
-sudo cp /etc/default/grub /etc/default/grub.bak
-# in /etc/default/grub:
-#   GRUB_THEME="/boot/grub2/themes/catppuccin/theme.txt"
-#   GRUB_GFXMODE=1920x1200,auto      # your panel's mode
-#   GRUB_TIMEOUT=12
-sudo grub2-mkconfig -o /boot/grub2/grub.cfg
-```
-The source machine installs the theme as `/boot/grub2/themes/catppuccin`. The flavour
-(mocha/macchiato/…) couldn't be read without root. Mocha matches the rest of the rice.
-
-## 11. rEFInd (manual, boot-critical)
-
-See [`../refind/README.md`](../refind/README.md).
-
-## Hardware-specific settings (not applied)
-
-| Setting | Source machine | Where |
+## Hardware-specific values from the laptop (re-tune on the new PC)
+| Setting | Laptop | Where |
 |---|---|---|
-| Display scale | 2880×1800 panel, Xwayland scale 1.6 | System Settings → Display |
+| Display | 2880×1800, Xwayland scale 1.6 | System Settings → Display |
 | Touchpad | natural scroll, acceleration 0.35, scroll factor 0.1 | System Settings → Touchpad |
-| Mouse (Microsoft Arc) | acceleration 0.2, flat profile | System Settings → Mouse |
-| Tiling layout | 25% / 50% / 25% columns, 4 px padding | Meta+T tile editor |
-| Power profiles | AC performance / battery balanced / low battery power-saver | Power Management |
+| Mouse | acceleration 0.2, flat profile | System Settings → Mouse |
+| Virtual desktops | 1 | System Settings → Virtual Desktops |
+
+## Boot menu
+The old laptop used a themed rEFInd (`refind/`). It is machine-specific (UUIDs, two ESPs) and not part of
+the CachyOS restore. See `refind/README.md` only if you deliberately want rEFInd again.

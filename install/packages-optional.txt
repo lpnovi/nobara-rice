@@ -1,0 +1,5 @@
+# Apps that appear in the dock / the screenshots but are not part of the theme. Asked separately.
+steam               # multilib (enable [multilib]; CachyOS has it on by default)
+helium-browser-bin  # AUR — Helium browser (default browser on the source laptop)
+# Not packaged for Arch / pick yourself: Discord (extra/discord), Proton Mail (AUR proton-mail-bin),
+# Bazaar and Riff (Flatpak: io.github.kolunmi.Bazaar, dev.diegovsky.Riff)

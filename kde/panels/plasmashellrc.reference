@@ -1,0 +1,22 @@
+# Reference copy of ~/.config/plasmashellrc panel views (live laptop). Panel 2 = bottom dock, Panel 31 = top bar.
+# panelOpacity: 0 adaptive, 1 opaque, 2 translucent. panelVisibility 2 = dodge windows. panelLengthMode 1 = fit content.
+
+[PlasmaViews][Panel 2]
+floating=1
+panelLengthMode=1
+panelOpacity=2
+panelVisibility=2
+shell=org.kde.plasma.desktop
+
+[PlasmaViews][Panel 2][Defaults]
+thickness=50
+
+[PlasmaViews][Panel 31]
+floating=0
+floatingApplets=1
+panelOpacity=2
+panelVisibility=2
+shell=org.kde.plasma.desktop
+
+[PlasmaViews][Panel 31][Defaults]
+thickness=36

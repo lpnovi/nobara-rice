@@ -1,0 +1,12 @@
+# Arch/CachyOS official-repo packages (verified on archlinux.org 2026-10-02). One per line; '#' = comment.
+# Installed by ./install.sh with: sudo pacman -S --needed <list>
+# Plasma itself (plasma-desktop, kwin, kdeplasma-addons, …) is assumed to come with CachyOS KDE.
+kvantum            # Qt application style engine (extra) — Nobara Enhanced Purple app theme
+ghostty            # terminal (extra)
+python             # runs kde/launcher/build.py and kde/kvantum/gen_kvantum.py
+rsync              # used by scripts/backup.sh
+git
+curl
+unzip
+kdeplasma-addons   # weather widget etc. (usually already installed)
+qt6-tools          # provides qdbus6 on Arch (installer uses it to talk to plasmashell/KWin)

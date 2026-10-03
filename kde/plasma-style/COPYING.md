@@ -1,7 +1,8 @@
-# Nobara-Enhanced — license and attribution
+# Nobara and Nobara-Enhanced — license and attribution
 
 **License: GPL-2.0-or-later** (not MIT). Full text: [`../../LICENSES/GPL-2.0-or-later.txt`](../../LICENSES/GPL-2.0-or-later.txt).
 
+- **`Nobara/`** is an unmodified copy of the original below, redistributed under its license.
 - **Original work:** the "Nobara" Plasma Style by GloriousEggroll / Nobara Project
   (`/usr/share/plasma/desktoptheme/Nobara`, metadata license `GPLv2+`), which is based on KDE's
   Breeze Plasma theme.

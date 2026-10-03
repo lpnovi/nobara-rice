@@ -63,3 +63,10 @@ Thumbs.db
 # ---- Wallpapers are never committed (see wallpapers/README.md) ----
 wallpapers/*
 !wallpapers/README.md
+
+# ---- Generated / build output ----
+__pycache__/
+*.pyc
+**/build/
+*.building/
+kde/launcher/local.lpnovi.kickoff/

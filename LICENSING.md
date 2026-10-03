@@ -13,9 +13,11 @@ is not licensed by me at all.
 
 ## 1. My original work — MIT ([`LICENSE`](LICENSE))
 
-- all scripts: `scripts/`, `refind/install-refind-theme.sh`, `refind/src/*.sh`,
-  `kde/plasma-style/tools/gen.py`
-- configuration: `kde/config/*.ini`, `kde/panels/`, `ghostty/` (config and the
+- all scripts: `install.sh`, `uninstall.sh`, `scripts/`, `refind/install-refind-theme.sh`, `refind/src/*.sh`,
+  `kde/plasma-style/tools/gen.py`, `kde/kvantum/gen_kvantum.py` (the generator only — its output is GPL-3.0-or-later, §3),
+  `kde/launcher/build.py`, `swap-launcher.py`, `apply.sh`, `revert.sh`, `kde/kwin/rounded-corners/build-from-source.sh`
+- configuration: `kde/config/*.ini`, `kde/panels/`, `kde/color-schemes/NobaraEnhancedPurple.colors`,
+  `kde/kvantum/kvantum.kvconfig`, `install/`, `ghostty/` (config and the
   `nobara-enhanced` color palette), `extras/inputactions/config.yaml`,
   `refind/config/*.template`, `refind/theme/nobara-purple/theme.conf`
 - the Ghostty geometry KWin script and its service: `kde/kwin/scripts/`
@@ -28,7 +30,11 @@ is not licensed by me at all.
   terminal icon)
 - documentation: `README.md`, `LICENSING.md`, `docs/`, and every other `README.md` / `UPSTREAM.md`
 
-## 2. Nobara-Enhanced Plasma Style — GPL-2.0-or-later (not MIT)
+## 2. Nobara and Nobara-Enhanced Plasma Styles — GPL-2.0-or-later (not MIT)
+
+`kde/plasma-style/Nobara/` is an **unmodified** copy of the Nobara Plasma Style (Nobara's `kde-nobara`
+package, license GPLv2+), redistributed under the same terms.
+
 
 `kde/plasma-style/Nobara-Enhanced/` is a modified copy of the **Nobara** Plasma Style by
 GloriousEggroll / the Nobara Project (itself based on KDE's Breeze theme). It is distributed
@@ -44,6 +50,10 @@ The original author credit in the metadata is kept. See [`kde/plasma-style/COPYI
 
 | Path | Origin | License |
 |---|---|---|
+| `kde/launcher/upstream-6.7.4/` and the generated fork `local.lpnovi.kickoff` (incl. my patches and `kde/launcher/nobara/*.qml`, `nobara-changes.diff`) | KDE Plasma `plasma-desktop` 6.7.4 Kickoff applet | GPL-2.0-or-later / LGPL-2.0-or-later per file SPDX headers; my additions are released under GPL-2.0-or-later ([`LICENSES/GPL-2.0-or-later.txt`](LICENSES/GPL-2.0-or-later.txt)) |
+| `kde/kvantum/base/` and the generated `kde/kvantum/NobaraEnhancedPurple/` | KvSimplicityDark by Tsu Jan, from kvantum-data 1.1.6 | GPL-3.0-or-later (`base/COPYING-kvantum-data-GPL3`, copied into the theme as `COPYING`) |
+| `kde/plasmoids/org.kde.plasma.windowtitlereborn/` | [Window Title Reborn](https://github.com/ShrekBytes/window-title-reborn) 1.0.0-plasma6.6 by ShrekBytes, unmodified | GPL-3.0-or-later ([`LICENSES/GPL-3.0.txt`](LICENSES/GPL-3.0.txt)) |
+| `kde/plasmoids/local.lpnovi.taskiconhover/`, `kde/kwin/effects/local_quicktile_glide/` | my own work, declared GPL-2.0-or-later in their `metadata.json` (they hook into GPL KDE components) | GPL-2.0-or-later |
 | `kde/kwin/effects/kwin6_effect_ripple/` (except `local-changes.diff`) | [kwin-niri-shaders-port](https://github.com/mj0x0/kwin-niri-shaders-port) by liixini and mj0x0 | MIT, see its own [`LICENSE`](kde/kwin/effects/kwin6_effect_ripple/LICENSE) |
 | `refind/theme/nobara-purple/font.png` | rEFInd's packaged `liberation-mono-regular-28.png` (glyphs rendered from Liberation Mono) | rEFInd: GPL-3.0-or-later ([`LICENSES/GPL-3.0.txt`](LICENSES/GPL-3.0.txt)); Liberation fonts: SIL OFL 1.1 ([`LICENSES/OFL-1.1.txt`](LICENSES/OFL-1.1.txt)) |
 | Window pane geometry in `refind/src/win.svg` and `refind/theme/nobara-purple/icons/os_win.png`, `os_win8.png` | [Papirus icon theme](https://github.com/PapirusDevelopmentTeam/papirus-icon-theme) `distributor-logo-windows.svg` | GPL-3.0 ([`LICENSES/GPL-3.0.txt`](LICENSES/GPL-3.0.txt)). The Windows logo is also a trademark of Microsoft Corporation (see §4). |
@@ -68,6 +78,6 @@ these images with your own.
 
 ## 5. Not included
 
-Fonts (Geist, SIL OFL 1.1), icon themes (candy-icons), cursors (Catppuccin), wallpapers and
-other dependencies aren't stored here. They're installed from their original sources, under
+Fonts (Geist, SIL OFL 1.1), icon themes (candy-icons), cursors (Catppuccin), KDE-Rounded-Corners,
+InputActions, PlasMusic Toolbar, wallpapers and other dependencies aren't stored here. They're installed from their original sources, under
 their own licenses.

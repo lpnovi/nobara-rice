@@ -1,6 +1,6 @@
-# Sanitized reference copy of ~/.config/plasma-org.kde.plasma.desktop-appletsrc
-# (activity IDs, dialog sizes, weather location and personal paths removed).
-# Not applied automatically — kde/panels/layout.js recreates the panels instead.
+# Sanitized reference copy of ~/.config/plasma-org.kde.plasma.desktop-appletsrc (live laptop, 2026-10-02).
+# Removed: activity IDs, dialog/popup sizes, item geometries, weather location, tray app names,
+# personal paths. Not applied automatically — kde/panels/layout.js recreates the panels instead.
 
 [ActionPlugins][0]
 MiddleButton;NoModifier=org.kde.paste
@@ -16,6 +16,9 @@ lastScreen=0
 location=0
 plugin=org.kde.plasma.folder
 wallpaperplugin=org.kde.image
+
+[Containments][1][General]
+iconSize=1
 
 [Containments][1][Wallpaper][org.kde.image][General]
 Image=file://@WALLPAPER_DIR@/desktop.jpg
@@ -37,8 +40,12 @@ plugin=org.kde.plasma.icontasks
 iconSpacing=0
 launchers=applications:systemsettings.desktop,applications:org.dnf.AppCenter.desktop,preferred://filemanager,preferred://browser,applications:discord.desktop,applications:steam.desktop,applications:io.github.kolunmi.Bazaar.desktop,applications:dev.diegovsky.Riff.desktop,applications:me.proton.Mail.desktop
 
+[Containments][2][Applets][81]
+immutability=1
+plugin=local.lpnovi.taskiconhover
+
 [Containments][2][General]
-AppletOrder=5
+AppletOrder=5;81
 
 [Containments][31]
 formfactor=2
@@ -50,11 +57,11 @@ wallpaperplugin=org.kde.image
 
 [Containments][31][Applets][32]
 immutability=1
-plugin=org.kde.plasma.kickoff
+plugin=local.lpnovi.kickoff
 
 [Containments][31][Applets][32][Configuration][General]
-favoritesPortedToKAstats=true
 icon=@KICKOFF_ICON@
+pin=true
 systemFavorites=suspend\\,hibernate\\,reboot\\,shutdown
 
 [Containments][31][Applets][33]
@@ -137,7 +144,6 @@ immutability=1
 plugin=org.kde.plasma.battery
 
 [Containments][31][Applets][34][General]
-disabledStatusNotifiers=org.kde.merkuro,dnf-app-center-updater,camera-relay
 extraItems=org.kde.kdeconnect,org.kde.plasma.vault,org.kde.kscreen,org.kde.plasma.bluetooth,org.kde.plasma.keyboardlayout,org.kde.plasma.networkmanagement,org.kde.plasma.printmanager,org.kde.plasma.volume,org.kde.plasma.clipboard,org.kde.plasma.devicenotifier,org.kde.plasma.manage-inputmethod,org.kde.plasma.keyboardindicator,org.kde.plasma.battery,org.kde.plasma.brightness,org.kde.plasma.notifications,org.kde.plasma.cameraindicator
 hiddenItems=org.kde.plasma.notifications
 iconSpacing=1
@@ -159,36 +165,21 @@ hideWhenUnavailable=true
 horizontalAlignment=0
 lengthKind=1
 
-[Containments][31][Applets][76]
-immutability=1
-plugin=org.kde.plasma.mediacontroller
-
 [Containments][31][Applets][79]
 immutability=1
 plugin=org.kde.plasma.weather
 
+[Containments][31][Applets][80]
+immutability=1
+plugin=plasmusic-toolbar
+
+[Containments][31][Applets][80][Configuration][General]
+customFont=Geist,6,-1,5,400,0,0,0,0,0,0,0,0,0,0,1,,0,0
+fallbackToIconWhenArtNotAvailable=true
+maxSongWidthInPanel=150
+panelIcon=com.deepin.Music
+textScrollingSpeed=1
+useAlbumCoverAsPanelIcon=true
+
 [Containments][31][General]
-AppletOrder=32;74;33;76;34;79;72
-
-[ScreenMapping]
-itemsOnDisabledScreens=
-screenMapping=
-
-# --- Panel view settings (from ~/.config/plasmashellrc) ---------------------
-# Panel IDs (2, 31) are machine-specific; a new install gets new IDs.
-# panelOpacity: 0 adaptive, 1 opaque, 2 translucent
-# panelVisibility: 0 always visible, 1 auto-hide, 2 dodge windows, 3 windows go below
-#
-# [PlasmaViews][Panel 2]          # bottom dock
-# floating=1
-# panelLengthMode=1               # fit content
-# panelOpacity=2
-# panelVisibility=2
-# thickness=50
-#
-# [PlasmaViews][Panel 31]         # top bar
-# floating=0
-# floatingApplets=1
-# panelOpacity=2
-# panelVisibility=2
-# thickness=36
+AppletOrder=32;74;33;80;34;79;72

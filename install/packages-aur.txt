@@ -1,0 +1,8 @@
+# AUR packages (verified on aur.archlinux.org 2026-10-02). Installed with paru or yay (never as root).
+kwin-effect-rounded-corners-git    # rounded window corners (KDE-Rounded-Corners) — REBUILD after every kwin update
+ttf-geist                          # Geist UI font (pkgbase geist-font, Vercel, OFL-1.1)
+ttf-geist-mono                     # Geist Mono (fixed-width font)
+candy-icons-git                    # icon theme "candy-icons"
+catppuccin-cursors-mocha           # cursor theme "catppuccin-mocha-mauve-cursors" (+ other Mocha accents)
+inputactions-kwin                  # touchpad gestures (KWin plugin kwin_gestures) — rebuild after kwin updates
+plasma6-applets-plasmusic-toolbar  # top-bar media widget "plasmusic-toolbar"

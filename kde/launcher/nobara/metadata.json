@@ -1,0 +1,26 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "Martin Graesslin"
+            },
+            {
+                "Name": "KDE (upstream Kickoff 6.7.4); Nobara Enhanced local styling"
+            }
+        ],
+        "Category": "Application Launchers",
+        "Description": "Kickoff with Nobara Enhanced Purple styling (user-local fork of Plasma 6.7.4 Kickoff)",
+        "EnabledByDefault": true,
+        "Icon": "start-here-kde",
+        "Id": "local.lpnovi.kickoff",
+        "License": "GPL-2.0+",
+        "Name": "Application Launcher (Nobara Enhanced)",
+        "Version": "6.7.4.1",
+        "Website": "https://userbase.kde.org/Plasma/Kickoff"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0",
+    "X-Plasma-Provides": [
+        "org.kde.plasma.launchermenu"
+    ],
+    "KPackageStructure": "Plasma/Applet"
+}

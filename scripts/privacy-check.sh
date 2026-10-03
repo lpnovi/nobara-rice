@@ -5,17 +5,24 @@ set -uo pipefail
 REPO=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
 cd "$REPO"
 hits=0
-check() { # label regex [extra file to exclude]
+# Extra grep options for the next check (reset after each use).
+EXTRA=()
+check() { # label regex [extra file to exclude] [allow-regex: matching lines are ignored]
   local out
   out=$(grep -rInE --exclude-dir=.git --exclude=privacy-check.sh --exclude='*.png' \
-        --exclude='*.jpg' --exclude='*.svgz' ${3:+--exclude="$3"} -e "$2" . 2>/dev/null | head -20)
+        --exclude='*.jpg' --exclude='*.svgz' ${3:+--exclude="$3"} "${EXTRA[@]}" -e "$2" . 2>/dev/null \
+        | { if [[ -n ${4:-} ]]; then grep -vE -- "$4"; else cat; fi; } | head -20)
+  EXTRA=()
   if [[ -n $out ]]; then printf '\n\033[1;33m[%s]\033[0m\n%s\n' "$1" "$out"; hits=1; fi
 }
 
 check "home paths"        "/home/[a-z_][a-z0-9_-]*|/Users/[A-Za-z]"
 # LICENSE intentionally names the copyright holder (the GitHub account that owns the repo).
-check "this user's name"  "\\b$(id -un)\\b" LICENSE
-check "e-mail addresses"  "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+# Plugin ids local.<user>.* and "<user> (local)" author tags use that public GitHub handle on purpose.
+check "this user's name"  "\\b$(id -un)\\b" LICENSE "local\\.$(id -un)\\.|$(id -un) \\(local\\)|github\\.com/$(id -un)/"
+# Vendored third-party code keeps its upstream copyright notices (author e-mails), as the GPL requires.
+EXTRA=(--exclude-dir=upstream-6.7.4 --exclude-dir=org.kde.plasma.windowtitlereborn)
+check "e-mail addresses"  "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}" "" "@users\\.noreply\\.github\\.com|noreply@anthropic"
 check "private keys"      "BEGIN (RSA|OPENSSH|EC|DSA|PGP) PRIVATE"
 check "tokens / API keys" "(gh[pousr]_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|xox[baprs]-|AIza[0-9A-Za-z_-]{30,})"
 check "secret-like keys"  "(password|passwd|secret|token|api[_-]?key|psk)\\s*[=:]"

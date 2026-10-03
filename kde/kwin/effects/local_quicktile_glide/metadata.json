@@ -1,0 +1,16 @@
+{
+    "KPackageStructure": "KWin/Effect",
+    "KPlugin": {
+        "Authors": [ { "Name": "lpnovi (local)" } ],
+        "Category": "Appearance",
+        "Description": "Local experiment: smoothly moves and resizes windows into Quick Tile geometry.",
+        "EnabledByDefault": false,
+        "Icon": "preferences-system-windows-effect-maximize",
+        "Id": "local_quicktile_glide",
+        "License": "GPL-2.0-or-later",
+        "Name": "Quick Tile Glide (local)",
+        "Version": "1.0"
+    },
+    "X-KDE-Ordering": 60,
+    "X-Plasma-API": "javascript"
+}

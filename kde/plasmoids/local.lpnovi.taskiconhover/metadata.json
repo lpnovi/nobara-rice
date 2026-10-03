@@ -1,0 +1,14 @@
+{
+    "KPackageStructure": "Plasma/Applet",
+    "KPlugin": {
+        "Authors": [ { "Name": "lpnovi (local)" } ],
+        "Category": "Windows and Tasks",
+        "Description": "Local experiment: invisible helper that adds a subtle hover lift to icons of the stock Icon-only Task Manager in the same panel. Does not modify the task manager itself.",
+        "Icon": "preferences-desktop-animations",
+        "Id": "local.lpnovi.taskiconhover",
+        "License": "GPL-2.0-or-later",
+        "Name": "Task Icon Hover (local)",
+        "Version": "1.0"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0"
+}
